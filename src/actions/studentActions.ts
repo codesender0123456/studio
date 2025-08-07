@@ -28,7 +28,7 @@ const resetPasswordSchema = z.object({
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
   try {
-    const { authAdmin } = getAdminServices();
+    const { authAdmin } = await getAdminServices();
     const validatedData = addStudentFormSchema.safeParse(formData);
 
     if (!validatedData.success) {
@@ -122,7 +122,7 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
 
 export async function resetStudentPassword(uid: string, formData: z.infer<typeof resetPasswordSchema>) {
     try {
-        const { authAdmin } = getAdminServices();
+        const { authAdmin } = await getAdminServices();
         const validatedData = resetPasswordSchema.safeParse(formData);
         if (!validatedData.success) {
             return {
@@ -152,7 +152,7 @@ export async function deleteStudent(rollNumber: string, email: string) {
   }
   
   try {
-    const { authAdmin } = getAdminServices();
+    const { authAdmin } = await getAdminServices();
 
     // 1. Delete from Firestore
     const studentRef = doc(db, "students", rollNumber.toLowerCase());

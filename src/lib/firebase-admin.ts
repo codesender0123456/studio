@@ -3,11 +3,11 @@ import * as admin from "firebase-admin";
 
 // This is a server-side only file.
 
-let app: admin.app.App | undefined;
+let app: admin.app.App;
 
-function initializeAdmin() {
+async function initializeAdmin() {
     if (admin.apps.length > 0) {
-        return admin.apps[0]!;
+        return admin.apps[0] as admin.app.App;
     }
 
     const serviceAccount = {
@@ -18,8 +18,7 @@ function initializeAdmin() {
     };
 
     if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
-        console.error("Firebase Admin credentials are not fully set in environment variables. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.");
-        return null;
+        throw new Error("Firebase Admin credentials are not fully set in environment variables. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.");
     }
 
     try {
@@ -28,7 +27,7 @@ function initializeAdmin() {
         });
     } catch (error: any) {
         console.error("Firebase admin initialization error:", error.message);
-        return null;
+        throw new Error("Firebase Admin SDK initialization failed. Check server logs for details.");
     }
 }
 
@@ -38,15 +37,11 @@ function initializeAdmin() {
  * It should be called at the beginning of any server action that needs admin privileges.
  * @returns An object containing the auth and firestore admin services, or throws an error if initialization fails.
  */
-export function getAdminServices() {
+export async function getAdminServices() {
     if (!app) {
-        app = initializeAdmin();
+        app = await initializeAdmin();
     }
     
-    if (!app) {
-        throw new Error("Firebase Admin SDK initialization failed. Check server logs for details. Make sure environment variables are set.");
-    }
-
     const authAdmin = admin.auth(app);
     const dbAdmin = admin.firestore(app);
 
