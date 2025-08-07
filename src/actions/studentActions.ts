@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { doc, setDoc, deleteDoc, updateDoc } from "firebase/firestore"; 
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch } from "firebase/firestore"; 
 import { db } from "@/lib/firebase";
 import { authAdmin } from "@/lib/firebase-admin";
 
@@ -153,5 +153,28 @@ export async function deleteStudent(rollNumber: string, email: string) {
       success: false,
       message: "An error occurred while communicating with the database.",
     };
+  }
+}
+
+export async function clearLoginAttempts() {
+  try {
+    const logsCollection = collection(db, "login_attempts");
+    const logsSnapshot = await getDocs(logsCollection);
+
+    if (logsSnapshot.empty) {
+      return { success: true, message: "No logs to clear." };
+    }
+    
+    const batch = writeBatch(db);
+    logsSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    
+    await batch.commit();
+    
+    return { success: true, message: `Successfully cleared ${logsSnapshot.size} log(s).` };
+  } catch (error) {
+    console.error("Error clearing login attempts: ", error);
+    return { success: false, message: "An error occurred while clearing logs." };
   }
 }

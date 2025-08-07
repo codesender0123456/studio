@@ -41,11 +41,14 @@ export default function AdminDashboard() {
         const attemptsData: LoginAttempt[] = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
+            // Firestore timestamps can be null if the document is created offline
+            // and the timestamp is set on the server. We should handle this case.
+            const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
             attemptsData.push({
                 id: doc.id,
                 email: data.email,
                 status: data.status,
-                timestamp: data.timestamp?.toDate(),
+                timestamp: timestamp,
             });
         });
         setLoginAttempts(attemptsData);
