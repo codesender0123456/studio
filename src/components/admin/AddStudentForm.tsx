@@ -115,9 +115,11 @@ export default function AddStudentForm() {
           });
           setExistingStudent(null);
         } else {
+          // If saving data fails, we should ideally delete the created user
+          await user.delete();
           toast({
             title: "Error Saving Data",
-            description: response.message || "An error occurred while saving student data.",
+            description: response.message || "An error occurred while saving student data. The user account was not created.",
             variant: "destructive",
           });
         }

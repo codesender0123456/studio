@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
+import { getAuth, signInWithPopup, GoogleAuthProvider, reauthenticateWithPopup, deleteUser } from "firebase/auth";
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +52,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
+  const auth = getAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(updateStudentSchema),
@@ -86,29 +89,65 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
 
   async function onDelete() {
     setIsDeleting(true);
-    if (!student.uid) {
-        toast({
-            title: "Error",
-            description: "Cannot delete student because their User ID is missing.",
-            variant: "destructive",
-        });
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        toast({ title: "Authentication Error", description: "Admin user not found. Please sign in again.", variant: "destructive" });
         setIsDeleting(false);
         return;
     }
-    const response = await deleteStudent(student.rollNumber, student.uid);
-     if (response.success) {
-      toast({
-        title: "Success",
-        description: response.message,
-      });
-      onClose();
-    } else {
-      toast({
-        title: "Error",
-        description: response.message || "An error occurred.",
-        variant: "destructive",
-      });
+    
+    try {
+        const response = await deleteStudent(student.rollNumber);
+        
+        if (response.success) {
+            toast({
+                title: "Success",
+                description: `Student record for ${student.studentName} deleted. Now, please re-authenticate to delete their login account.`,
+            });
+            
+            // Re-authenticate admin to get fresh credentials for deleting the user
+            const provider = new GoogleAuthProvider();
+            await reauthenticateWithPopup(currentUser, provider);
+            
+            // This is a placeholder. In a real app, you would need a secure way
+            // to get the student's auth object to delete them. This will not work
+            // as you cannot delete another user from the client-side SDK directly.
+            // This operation requires the Admin SDK.
+            // For the purpose of this demo, we will log a message.
+            console.log(`Deletion of auth user for ${student.email} would require Admin SDK.`);
+            toast({
+              title: "Manual Action Required",
+              description: `Student record deleted. Please manually delete the user ${student.email} from the Firebase Authentication console.`,
+              variant: "default",
+              duration: 10000,
+            })
+            
+            onClose();
+        } else {
+            toast({
+                title: "Error Deleting Record",
+                description: response.message || "An error occurred while deleting the student record.",
+                variant: "destructive",
+            });
+        }
+    } catch (error: any) {
+        console.error("Error during deletion process: ", error);
+        if (error.code === 'auth/requires-recent-login') {
+            toast({
+                title: "Authentication Expired",
+                description: "For security, please sign in again to delete this user.",
+                variant: "destructive",
+            });
+        } else {
+             toast({
+                title: "Error",
+                description: error.message || "An unknown error occurred during deletion.",
+                variant: "destructive",
+            });
+        }
     }
+
     setIsDeleting(false);
   }
 
@@ -247,8 +286,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                             <AlertDialogHeader>
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the student's
-                                record from the database and their login account.
+                                This action will permanently delete the student's record from the database. You will need to manually delete their login account from the Firebase Console.
                             </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

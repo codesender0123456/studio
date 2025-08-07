@@ -58,7 +58,7 @@ export async function saveStudentData(formData: z.infer<typeof addStudentFormSch
       };
     }
     
-    const { email, uid, ...studentData } = validatedData.data;
+    const { ...studentData } = validatedData.data;
     
     const studentRef = doc(db, "students", studentData.rollNumber.toLowerCase());
 
@@ -70,7 +70,7 @@ export async function saveStudentData(formData: z.infer<typeof addStudentFormSch
       };
     }
 
-    await setDoc(studentRef, { ...studentData, email, uid });
+    await setDoc(studentRef, { ...studentData });
     
     return {
       success: true,
@@ -134,40 +134,21 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
   }
 }
 
-export async function deleteStudent(rollNumber: string, uid: string) {
+export async function deleteStudent(rollNumber: string) {
   if (!rollNumber) {
     return { success: false, message: "Roll Number is required." };
   }
-  if (!uid) {
-    return { success: false, message: "User ID is required to delete the account." };
-  }
   
   try {
-    const authAdmin = getAuth();
-
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await deleteDoc(studentRef);
 
-    await authAdmin.deleteUser(uid);
-
     return {
       success: true,
-      message: "Successfully deleted student and their account.",
+      message: "Successfully deleted student record.",
     };
   } catch (error: any) {
     console.error("Error deleting student: ", error);
-    if (error.code === 'auth/user-not-found') {
-        // If user doesn't exist in auth, but we still want to delete from firestore
-        const studentRef = doc(db, "students", rollNumber.toLowerCase());
-        await deleteDoc(studentRef);
-        return { success: true, message: "Student record deleted. The associated user account was not found." };
-    }
-    if (error.message.includes("environment variable is not set")) {
-        return {
-            success: false,
-            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
-        };
-    }
     return {
       success: false,
       message: error.message || "An unknown error occurred.",
