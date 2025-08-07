@@ -92,7 +92,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                     <FormControl>
                         <Input 
                             type="number"
-                            placeholder="Marks"
+                            placeholder="Marks Obtained"
                             {...field}
                             onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
                             value={field.value ?? ""}
