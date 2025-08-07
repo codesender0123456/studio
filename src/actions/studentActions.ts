@@ -31,16 +31,44 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
       errors: validatedData.error.flatten().fieldErrors,
     };
   }
-  
-  // In a real application, you would save this data to your database (e.g., a Google Sheet via an API).
-  // For this demo, we'll just log it to the console.
-  console.log("New student data received:", validatedData.data);
-  
-  // Here, we would also update our mock data source if we wanted the table to update.
-  // This part is omitted for simplicity as it would require managing state on the server or refetching.
 
-  return {
-    success: true,
-    message: `Successfully added student ${validatedData.data.studentName}.`,
-  };
+  const SCRIPT_URL = process.env.GOOGLE_SHEET_SCRIPT_URL;
+
+  if (!SCRIPT_URL) {
+    console.error("Google Sheet script URL is not defined in environment variables.");
+    return {
+      success: false,
+      message: "Server configuration error: Script URL is missing.",
+    };
+  }
+
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedData.data),
+    });
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      return {
+        success: true,
+        message: `Successfully added student ${validatedData.data.studentName}.`,
+      };
+    } else {
+      return {
+        success: false,
+        message: result.message || "An unknown error occurred while adding the student.",
+      };
+    }
+  } catch (error) {
+    console.error("Error submitting to Google Sheet:", error);
+    return {
+      success: false,
+      message: "An error occurred while communicating with the database.",
+    };
+  }
 }
