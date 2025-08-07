@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
-import { getAdminServices } from "@/lib/firebase-admin";
+import { getAuth, getFirestore } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
 
 const studentSchema = z.object({
@@ -15,20 +15,14 @@ const studentSchema = z.object({
   class: z.coerce.number().min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
   batch: z.string().min(1, "Batch is required"),
-  password: z.string().min(6, "Password must be at least 6 characters long."),
 });
 
 const addStudentFormSchema = studentSchema;
-const updateStudentSchema = studentSchema.omit({ rollNumber: true, password: true });
-const resetPasswordSchema = z.object({
-  password: z.string().min(6, "New password must be at least 6 characters long."),
-});
-
+const updateStudentSchema = studentSchema.omit({ rollNumber: true });
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
   try {
-    const { auth: authAdmin } = getAdminServices();
-
+    const authAdmin = getAuth();
     const validatedData = addStudentFormSchema.safeParse(formData);
 
     if (!validatedData.success) {
@@ -39,15 +33,31 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
       };
     }
 
-    const { email, password, ...studentData } = validatedData.data;
+    const { email, ...studentData } = validatedData.data;
 
-    // 1. Create Firebase Auth user
+    try {
+      // Check if a user with that email already exists in Firebase Auth
+      await authAdmin.getUserByEmail(email);
+      // If it doesn't throw, a user exists.
+      return {
+        success: false,
+        message: "A user with this email address already exists in the authentication system. Please use a different email.",
+      };
+    } catch (error: any) {
+      // "user-not-found" is the expected error if the email is available.
+      if (error.code !== 'auth/user-not-found') {
+        // For any other auth-related error, return a message.
+        console.error("Error checking user:", error);
+        return { success: false, message: error.message || "An unexpected error occurred while checking user existence." };
+      }
+    }
+    
+    // 1. Create Firebase Auth user (no password)
     const userRecord = await authAdmin.createUser({
       email: email,
-      password: password,
       displayName: studentData.studentName,
     });
-
+    
     // 2. Save student data to Firestore
     const studentRef = doc(db, "students", studentData.rollNumber.toLowerCase());
     await setDoc(studentRef, { ...studentData, email });
@@ -58,15 +68,9 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
-    let message = "An error occurred while communicating with the database.";
-    if(error.code === 'auth/email-already-exists') {
-        message = "A student with this email address already exists in the authentication system.";
-    } else if (error.message.includes("Firebase Admin SDK initialization failed")) {
-        message = error.message;
-    }
     return {
       success: false,
-      message: message,
+      message: error.message || "An unknown error occurred while communicating with the database.",
     };
   }
 }
@@ -120,35 +124,13 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
   }
 }
 
-export async function resetStudentPassword(uid: string, formData: z.infer<typeof resetPasswordSchema>) {
-    try {
-        const { auth: authAdmin } = getAdminServices();
-        const validatedData = resetPasswordSchema.safeParse(formData);
-        if (!validatedData.success) {
-            return {
-                success: false,
-                message: "Invalid data provided.",
-                errors: validatedData.error.flatten().fieldErrors,
-            };
-        }
-        await authAdmin.updateUser(uid, {
-            password: validatedData.data.password,
-        });
-        return { success: true, message: "Password updated successfully." };
-    } catch (error: any) {
-        console.error("Error resetting password:", error);
-        return { success: false, message: error.message || "An unknown error occurred." };
-    }
-}
-
-
 export async function deleteStudent(rollNumber: string, email: string) {
   if (!rollNumber) {
     return { success: false, message: "Roll Number is required." };
   }
   
   try {
-    const { auth: authAdmin } = getAdminServices();
+    const authAdmin = getAuth();
 
     // 1. Delete from Firestore
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
@@ -173,14 +155,15 @@ export async function deleteStudent(rollNumber: string, email: string) {
 
 export async function clearLoginAttempts() {
   try {
-    const logsCollection = collection(db, "login_attempts");
+    const firestore = getFirestore();
+    const logsCollection = collection(firestore, "login_attempts");
     const logsSnapshot = await getDocs(logsCollection);
 
     if (logsSnapshot.empty) {
       return { success: true, message: "No logs to clear." };
     }
     
-    const batch = writeBatch(db);
+    const batch = writeBatch(firestore);
     logsSnapshot.docs.forEach((doc) => {
       batch.delete(doc.ref);
     });
