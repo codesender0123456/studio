@@ -131,70 +131,72 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
           />
         </div>
         
-        {(isJeeStudent || isRegularOrCet) && (
-             <FormField
-                control={form.control}
-                name="maths"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Maths Marks</FormLabel>
-                    <FormControl>
-                    <Input 
-                        type="number" 
-                        placeholder="out of 120"
-                        {...field} 
-                        value={field.value ?? ""}
-                        className="glowing-shadow-sm" 
-                    />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-          )}
-
-        {(isNeetStudent || isRegularOrCet) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(isJeeStudent || isRegularOrCet) && (
                 <FormField
                     control={form.control}
-                    name="botany"
+                    name="maths"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Botany Marks</FormLabel>
+                        <FormLabel>Maths Marks</FormLabel>
                         <FormControl>
-                            <Input 
-                                type="number" 
-                                placeholder="out of 180" 
-                                {...field} 
-                                value={field.value ?? ""}
-                                className="glowing-shadow-sm" 
-                            />
+                        <Input 
+                            type="number" 
+                            placeholder="out of 120"
+                            {...field} 
+                            value={field.value ?? ""}
+                            className="glowing-shadow-sm" 
+                        />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
                 />
-                 <FormField
-                    control={form.control}
-                    name="zoology"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Zoology Marks</FormLabel>
-                        <FormControl>
-                            <Input 
-                                type="number" 
-                                placeholder="out of 180" 
-                                {...field} 
-                                value={field.value ?? ""}
-                                className="glowing-shadow-sm" 
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-            </div>
-        )}
+            )}
+
+            {(isNeetStudent || isRegularOrCet) && (
+                <>
+                    <FormField
+                        control={form.control}
+                        name="botany"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Botany Marks</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    type="number" 
+                                    placeholder="out of 180" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                    className="glowing-shadow-sm" 
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="zoology"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Zoology Marks</FormLabel>
+                            <FormControl>
+                                <Input 
+                                    type="number" 
+                                    placeholder="out of 180" 
+                                    {...field} 
+                                    value={field.value ?? ""}
+                                    className="glowing-shadow-sm" 
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </>
+            )}
+        </div>
         <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Marksheet
