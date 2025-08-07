@@ -126,38 +126,38 @@ export default function ViewResultsTab({ student }: ViewResultsTabProps) {
         {marks.map((mark) => (
             <Accordion type="single" collapsible key={mark.id}>
                 <AccordionItem value={mark.id!} className="border rounded-md px-4 bg-muted/20">
-                    <AccordionTrigger>
-                        <div className="flex justify-between items-center w-full">
+                     <div className="flex justify-between items-center w-full">
+                        <AccordionTrigger className="flex-1">
                             <div className="flex flex-col text-left">
                                 <span className="font-semibold">{mark.testName}</span>
                                 <span className="text-xs text-muted-foreground">{mark.dateOfTest}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); setEditingMarksheet(mark);}}>
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()} disabled={isDeleting === mark.id}>
-                                            {isDeleting === mark.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This will permanently delete the result for "{mark.testName}". This action cannot be undone.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDelete(mark.id!)}>Delete</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
+                        </AccordionTrigger>
+                        <div className="flex items-center gap-2 ml-4">
+                            <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => setEditingMarksheet(mark)}>
+                                <Edit className="h-4 w-4" />
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="destructive" className="h-8 w-8 p-0" disabled={isDeleting === mark.id}>
+                                        {isDeleting === mark.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will permanently delete the result for "{mark.testName}". This action cannot be undone.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDelete(mark.id!)}>Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
-                    </AccordionTrigger>
+                    </div>
                     <AccordionContent>
                          <MarksheetResultItem marksheet={mark} />
                     </AccordionContent>
@@ -174,4 +174,3 @@ export default function ViewResultsTab({ student }: ViewResultsTabProps) {
     </div>
   );
 }
-
