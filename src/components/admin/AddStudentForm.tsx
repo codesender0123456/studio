@@ -50,6 +50,7 @@ export default function AddStudentForm() {
       email: "",
       batch: "",
     },
+    mode: 'onChange',
   });
 
   const watchedEmail = useWatch({ control: form.control, name: 'email'});
@@ -89,13 +90,18 @@ export default function AddStudentForm() {
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     
+    // This is a placeholder password. The user will be forced to reset it.
+    // In a real application, you would implement a more secure flow,
+    // like sending a password reset email.
     const tempPassword = `password${Date.now()}`;
     const clientAuth = getAuth();
 
     try {
+        // Step 1: Create the user in Firebase Auth
         const userCredential = await createUserWithEmailAndPassword(clientAuth, values.email, tempPassword);
         const user = userCredential.user;
 
+        // Step 2: If user creation is successful, save the student data to Firestore
         const response = await saveStudentData({ ...values, uid: user.uid });
 
         if (response.success) {
@@ -116,6 +122,7 @@ export default function AddStudentForm() {
           setExistingStudent(null);
         } else {
           // If saving data fails, we should ideally delete the created user
+          // to avoid orphaned auth accounts.
           await user.delete();
           toast({
             title: "Error Saving Data",
@@ -124,6 +131,7 @@ export default function AddStudentForm() {
           });
         }
     } catch (error: any) {
+        // This will catch errors from both createUserWithEmailAndPassword and the server action
         toast({
             title: "Error Creating User",
             description: error.message || "An error occurred during user creation.",
@@ -274,7 +282,7 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
-        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !!existingStudent}>
+        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !!existingStudent || !form.formState.isValid}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
         </Button>
