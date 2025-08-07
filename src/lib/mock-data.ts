@@ -4,7 +4,7 @@ export type Student = {
   parentsName: string;
   dob: string; // YYYY-MM-DD
   class: 11 | 12;
-  stream: "PCM" | "PCB" | "PCMB";
+  stream: "JEE" | "NEET" | "MHT-CET";
   subjects: {
     physics: number;
     chemistry: number;
@@ -23,7 +23,7 @@ export const students: Student[] = [
     parentsName: "Michael Smith",
     dob: "2006-05-15",
     class: 12,
-    stream: "PCMB",
+    stream: "MHT-CET",
     subjects: { physics: 88, chemistry: 92, maths: 78, zoology: 48, botany: 47 },
     total: 353,
     result: "Pass",
@@ -34,7 +34,7 @@ export const students: Student[] = [
     parentsName: "Sarah Johnson",
     dob: "2006-08-22",
     class: 12,
-    stream: "PCM",
+    stream: "JEE",
     subjects: { physics: 91, chemistry: 85, maths: 89, zoology: null, botany: null },
     total: 265,
     result: "Pass",
@@ -45,7 +45,7 @@ export const students: Student[] = [
     parentsName: "David Williams",
     dob: "2006-02-10",
     class: 11,
-    stream: "PCB",
+    stream: "NEET",
     subjects: { physics: 75, chemistry: 68, maths: null, zoology: 40, botany: 42 },
     total: 225,
     result: "Pass",
@@ -56,7 +56,7 @@ export const students: Student[] = [
     parentsName: "Jessica Brown",
     dob: "2006-11-30",
     class: 11,
-    stream: "PCMB",
+    stream: "MHT-CET",
     subjects: { physics: 25, chemistry: 45, maths: 55, zoology: 30, botany: 30 },
     total: 185,
     result: "Fail",
@@ -67,7 +67,7 @@ export const students: Student[] = [
     parentsName: "Christopher Jones",
     dob: "2006-07-19",
     class: 12,
-    stream: "PCM",
+    stream: "JEE",
     subjects: { physics: 98, chemistry: 99, maths: 95, zoology: null, botany: null },
     total: 292,
     result: "Pass",
@@ -78,7 +78,7 @@ export const students: Student[] = [
     parentsName: "Test Parent",
     dob: "2007-01-01",
     class: 11,
-    stream: "PCMB",
+    stream: "MHT-CET",
     subjects: { physics: 75, chemistry: 80, maths: 85, zoology: 45, botany: 45 },
     total: 330,
     result: "Pass",

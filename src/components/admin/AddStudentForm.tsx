@@ -34,7 +34,7 @@ const formSchema = z.object({
   parentsName: z.string().min(1, "Parent's Name is required"),
   dob: z.string().min(1, "Date of Birth is required"),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
-  stream: z.enum(["PCM", "PCB", "PCMB"], { required_error: "Please select a stream."}),
+  stream: z.enum(["JEE", "NEET", "MHT-CET"], { required_error: "Please select a stream."}),
   physics: z.coerce.number().min(0).max(100),
   chemistry: z.coerce.number().min(0).max(100),
   maths: z.coerce.number().min(0).max(100).optional(),
@@ -47,9 +47,9 @@ type FormValues = z.infer<typeof formSchema>;
 const PASS_MARK = 33;
 
 const subjectFields = {
-    PCM: ["physics", "chemistry", "maths"],
-    PCB: ["physics", "chemistry", "zoology", "botany"],
-    PCMB: ["physics", "chemistry", "maths", "zoology", "botany"],
+    JEE: ["physics", "chemistry", "maths"],
+    NEET: ["physics", "chemistry", "zoology", "botany"],
+    "MHT-CET": ["physics", "chemistry", "maths", "zoology", "botany"],
 } as const;
 
 export default function AddStudentForm() {
@@ -222,9 +222,9 @@ export default function AddStudentForm() {
                         </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        <SelectItem value="PCM">PCM (Physics, Chemistry, Maths)</SelectItem>
-                        <SelectItem value="PCB">PCB (Physics, Chemistry, Zoology, Botany)</SelectItem>
-                        <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Zoology, Botany)</SelectItem>
+                        <SelectItem value="JEE">JEE (PCM)</SelectItem>
+                        <SelectItem value="NEET">NEET (PCB)</SelectItem>
+                        <SelectItem value="MHT-CET">MHT-CET (PCMB)</SelectItem>
                     </SelectContent>
                     </Select>
                     <FormMessage />
