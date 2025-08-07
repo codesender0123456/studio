@@ -1,12 +1,12 @@
 
 import { z } from "zod";
 
-const studentSchema = z.object({
+const studentBaseSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
-    message: "Date of birth cannot be in the future.",
+  dateOfBirth: z.string().refine((date) => new Date(date) < new Date(), {
+    message: "Date of birth must be in the past.",
   }),
   email: z.string().email("Invalid email address"),
   class: z.coerce.number().min(11, "Class is required.").max(12),
@@ -14,10 +14,6 @@ const studentSchema = z.object({
   batch: z.string().min(1, "Batch is required"),
 });
 
-export const addStudentFormClientSchema = studentSchema;
+export const addStudentFormSchema = studentBaseSchema;
 
-export const addStudentFormSchema = studentSchema.extend({
-  uid: z.string().min(1, "User ID is required."),
-});
-
-export const updateStudentSchema = studentSchema.omit({ rollNumber: true });
+export const updateStudentSchema = studentBaseSchema.omit({ rollNumber: true });

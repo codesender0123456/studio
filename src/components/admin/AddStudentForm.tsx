@@ -7,7 +7,6 @@ import { z } from "zod";
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, AlertTriangle } from "lucide-react";
 import debounce from "lodash.debounce";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,10 +29,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { Student } from "@/lib/student-types";
-import { addStudentFormClientSchema } from "@/lib/schemas";
+import { addStudentFormSchema } from "@/lib/schemas";
 
 
-type FormValues = z.infer<typeof addStudentFormClientSchema>;
+type FormValues = z.infer<typeof addStudentFormSchema>;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +40,7 @@ export default function AddStudentForm() {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(addStudentFormClientSchema),
+    resolver: zodResolver(addStudentFormSchema),
     defaultValues: {
       rollNumber: "",
       studentName: "",
@@ -89,56 +88,31 @@ export default function AddStudentForm() {
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-    
-    // This is a placeholder password. The user will be forced to reset it.
-    // In a real application, you would implement a more secure flow,
-    // like sending a password reset email.
-    const tempPassword = `password${Date.now()}`;
-    const clientAuth = getAuth();
+    const response = await saveStudentData(values);
 
-    try {
-        // Step 1: Create the user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(clientAuth, values.email, tempPassword);
-        const user = userCredential.user;
-
-        // Step 2: If user creation is successful, save the student data to Firestore
-        const response = await saveStudentData({ ...values, uid: user.uid });
-
-        if (response.success) {
-          toast({
-            title: "Success",
-            description: response.message,
-          });
-          form.reset({
-            rollNumber: "",
-            studentName: "",
-            parentsName: "",
-            dateOfBirth: new Date().toISOString().split('T')[0],
-            email: "",
-            batch: "",
-            class: undefined,
-            stream: undefined
-          });
-          setExistingStudent(null);
-        } else {
-          // If saving data fails, we should ideally delete the created user
-          // to avoid orphaned auth accounts.
-          await user.delete();
-          toast({
-            title: "Error Saving Data",
-            description: response.message || "An error occurred while saving student data. The user account was not created.",
-            variant: "destructive",
-          });
-        }
-    } catch (error: any) {
-        // This will catch errors from both createUserWithEmailAndPassword and the server action
-        toast({
-            title: "Error Creating User",
-            description: error.message || "An error occurred during user creation.",
-            variant: "destructive",
-        });
+    if (response.success) {
+      toast({
+        title: "Success",
+        description: response.message,
+      });
+      form.reset({
+        rollNumber: "",
+        studentName: "",
+        parentsName: "",
+        dateOfBirth: new Date().toISOString().split('T')[0],
+        email: "",
+        batch: "",
+        class: undefined,
+        stream: undefined
+      });
+      setExistingStudent(null);
+    } else {
+      toast({
+        title: "Error",
+        description: response.message || "An error occurred.",
+        variant: "destructive",
+      });
     }
-
     setIsSubmitting(false);
   }
 
@@ -282,7 +256,7 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
-        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !!existingStudent || !form.formState.isValid}>
+        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !!existingStudent}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
         </Button>
