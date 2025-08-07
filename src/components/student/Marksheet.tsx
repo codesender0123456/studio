@@ -25,7 +25,7 @@ type MarksheetProps = {
   onReset: () => void;
 };
 
-const subjectNames = ["Physics", "Chemistry", "Mathematics", "Computer Science", "English"];
+const subjectNames = ["Physics", "Chemistry", "Mathematics", "Computer Science"];
 
 export default function Marksheet({ student, onReset }: MarksheetProps) {
   const marksheetRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
 
           <div className="flex justify-between items-center font-bold text-lg">
             <span>Total Marks:</span>
-            <span className="text-primary text-glow">{student.total} / 500</span>
+            <span className="text-primary text-glow">{student.total} / 400</span>
           </div>
 
           <div className="flex justify-between items-center font-bold text-lg mt-2">

@@ -11,7 +11,6 @@ const studentSchema = z.object({
   s2: z.coerce.number().min(0).max(100),
   s3: z.coerce.number().min(0).max(100),
   s4: z.coerce.number().min(0).max(100),
-  s5: z.coerce.number().min(0).max(100),
   total: z.coerce.number(),
   result: z.enum(["Pass", "Fail"]),
 });

@@ -36,7 +36,6 @@ const formSchema = z.object({
   s2: z.coerce.number().min(0).max(100),
   s3: z.coerce.number().min(0).max(100),
   s4: z.coerce.number().min(0).max(100),
-  s5: z.coerce.number().min(0).max(100),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,11 +57,10 @@ export default function AddStudentForm() {
       s2: 0,
       s3: 0,
       s4: 0,
-      s5: 0,
     },
   });
 
-  const marks = form.watch(["s1", "s2", "s3", "s4", "s5"]);
+  const marks = form.watch(["s1", "s2", "s3", "s4"]);
   const total = marks.reduce((acc, mark) => acc + (Number(mark) || 0), 0);
   const result: "Pass" | "Fail" = marks.every(mark => (Number(mark) || 0) >= PASS_MARK) ? "Pass" : "Fail";
 
@@ -144,8 +142,8 @@ export default function AddStudentForm() {
             )}
           />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {[...Array(5)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
              <FormField
               key={i}
               control={form.control}
@@ -164,7 +162,7 @@ export default function AddStudentForm() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-card-foreground/5 holographic-card">
-            <div className="text-lg font-medium">Total Marks: <span className="font-bold text-primary text-glow">{total} / 500</span></div>
+            <div className="text-lg font-medium">Total Marks: <span className="font-bold text-primary text-glow">{total} / 400</span></div>
             <div className="text-lg font-medium">Result: <span className={cn("font-bold text-glow", result === "Pass" ? "text-primary" : "text-destructive")}>{result}</span></div>
         </div>
 
