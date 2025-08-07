@@ -112,37 +112,92 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
   }, [student.rollNumber])
 
   const handleDownload = async () => {
-    if (!marksheetRef.current) return;
+    const elementToCapture = marksheetRef.current;
+    if (!elementToCapture) return;
+
     setIsDownloading(true);
 
-    const canvas = await html2canvas(marksheetRef.current, {
-        backgroundColor: "#0d0d1a", // Dark background for canvas
-        scale: 2, // Higher scale for better quality
-    });
-    
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [canvas.width, canvas.height]
-    });
+    // Create a clone of the node
+    const clone = elementToCapture.cloneNode(true) as HTMLElement;
 
-    pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`marksheet-${student.rollNumber}.pdf`);
-    setIsDownloading(false);
+    // Style the clone for printing
+    clone.style.position = 'absolute';
+    clone.style.left = '-9999px';
+    clone.style.top = '0px';
+    clone.style.width = '700px'; // A fixed width for consistent PDF output
+    clone.style.backgroundColor = '#0D0D1A';
+    clone.style.color = 'white';
+
+
+    document.body.appendChild(clone);
+
+    // Give a moment for images to load in the clone
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    try {
+        const canvas = await html2canvas(clone, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true, // Important for external images
+            backgroundColor: '#0D0D1A',
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: 'a4'
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / canvasHeight;
+        const newCanvasWidth = pdfWidth;
+        const newCanvasHeight = newCanvasWidth / ratio;
+        
+        let height = newCanvasHeight;
+        let position = 0;
+
+        if (height > pdfHeight) {
+             height = pdfHeight;
+        }
+
+        pdf.addImage(imgData, "PNG", 0, position, newCanvasWidth, newCanvasHeight);
+        
+        let remainingHeight = newCanvasHeight - height;
+        
+        while (remainingHeight > 0) {
+            position = position - pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, newCanvasWidth, newCanvasHeight);
+            remainingHeight -= pdfHeight;
+        }
+
+
+        pdf.save(`marksheet-${student.rollNumber}.pdf`);
+
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+        setError("Could not generate the PDF. Please try again.");
+    } finally {
+        document.body.removeChild(clone);
+        setIsDownloading(false);
+    }
   };
   
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
-      <div ref={marksheetRef} className="p-6 bg-background/50">
+      <div ref={marksheetRef} className="p-6 bg-transparent">
         <CardHeader className="p-0 mb-4 text-center">
-            <div className="flex flex-col items-center justify-center space-y-2">
+            <div className="flex flex-col justify-center items-center gap-4 mb-4">
                 <Icons.logo className="h-20 w-20 text-primary" />
-                <div>
-                    <h2 className="text-2xl font-bold font-headline text-glow whitespace-nowrap">Phoenix Science Academy</h2>
-                    <p className="text-sm text-center text-muted-foreground">Student Marksheet</p>
-                </div>
+                <h1 className="text-4xl sm:text-5xl font-bold font-headline text-glow whitespace-nowrap">
+                Phoenix Science Academy
+                </h1>
             </div>
+             <p className="text-sm text-center text-muted-foreground">Student Marksheet</p>
         </CardHeader>
         <CardContent className="p-0">
             <Accordion type="single" collapsible defaultValue="details">
