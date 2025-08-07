@@ -91,7 +91,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 <FormControl>
                     <Input 
                         type="text"
-                        placeholder="Topic Covered"
+                        placeholder="Topic"
                         {...field}
                         value={field.value ?? ""}
                         className="glowing-shadow-sm h-9"
