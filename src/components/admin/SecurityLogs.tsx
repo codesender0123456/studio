@@ -52,7 +52,7 @@ export default function SecurityLogs({ attempts }: SecurityLogsProps) {
     <div className="space-y-4">
         <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground">
-                This log shows all unauthorized attempts to access the admin panel.
+                Showing {attempts.length} unauthorized attempt(s) to access the admin panel.
             </p>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -80,6 +80,7 @@ export default function SecurityLogs({ attempts }: SecurityLogsProps) {
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead>Email Address</TableHead>
+                <TableHead>Attempted By (if student)</TableHead>
                 <TableHead>Timestamp</TableHead>
                 <TableHead className="text-right">Status</TableHead>
               </TableRow>
@@ -89,6 +90,7 @@ export default function SecurityLogs({ attempts }: SecurityLogsProps) {
                   attempts.map((attempt) => (
                     <TableRow key={attempt.id}>
                         <TableCell className="font-medium">{attempt.email}</TableCell>
+                        <TableCell>{attempt.studentName || 'Unknown User'}</TableCell>
                         <TableCell>{attempt.timestamp ? format(new Date(attempt.timestamp), "PPP p") : 'N/A'}</TableCell>
                         <TableCell className="text-right">
                             <Badge variant="destructive">{attempt.status}</Badge>
@@ -97,7 +99,7 @@ export default function SecurityLogs({ attempts }: SecurityLogsProps) {
                   ))
               ) : (
                   <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
+                      <TableCell colSpan={4} className="h-24 text-center">
                           No unauthorized login attempts found.
                       </TableCell>
                   </TableRow>

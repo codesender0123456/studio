@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { getStudentByEmail } from "@/actions/studentActions";
 
 const GoogleIcon = (props: React.ComponentProps<'svg'>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -45,11 +46,17 @@ export default function AdminLoginForm() {
         // Log unauthorized attempt
         if (user.email) {
             try {
-                await addDoc(collection(db, "login_attempts"), {
+                // Check if the user is a registered student
+                const studentResult = await getStudentByEmail(user.email);
+                const logData: {email: string, timestamp: any, status: string, studentName?: string} = {
                     email: user.email,
                     timestamp: serverTimestamp(),
                     status: "failed",
-                });
+                };
+                if (studentResult.data) {
+                    logData.studentName = studentResult.data.studentName;
+                }
+                await addDoc(collection(db, "login_attempts"), logData);
             } catch (logError) {
                 console.error("Failed to log unauthorized attempt:", logError);
             }

@@ -29,4 +29,5 @@ export type LoginAttempt = {
   email: string;
   timestamp: Date;
   status: "failed";
+  studentName?: string;
 }
