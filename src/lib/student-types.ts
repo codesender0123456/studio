@@ -15,6 +15,7 @@ export type Student = {
 export type SubjectMarks = {
   marks: number;
   maxMarks: number;
+  topic?: string;
 }
 
 export type MarksheetData = {

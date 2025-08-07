@@ -30,8 +30,9 @@ export const updateStudentSchema = z.object(studentBaseSchema);
 
 
 const subjectMarksSchema = z.object({
-    marks: z.coerce.number().min(0, "Marks must be positive."),
-    maxMarks: z.coerce.number().min(1, "Max marks must be greater than 0."),
+    marks: z.coerce.number().min(0, "Marks must be positive.").optional(),
+    maxMarks: z.coerce.number().min(1, "Max marks must be greater than 0.").optional(),
+    topic: z.string().optional(),
 }).optional().nullable();
 
 export const marksheetSchema = z.object({
@@ -46,8 +47,19 @@ export const marksheetSchema = z.object({
     zoology: subjectMarksSchema,
 }).refine(data => {
     const subjects = [data.physics, data.chemistry, data.maths, data.botany, data.zoology];
-    return subjects.some(subject => subject && subject.marks !== null && subject.maxMarks !== null);
+    return subjects.some(subject => subject && subject.marks !== null && subject.marks !== undefined);
 }, {
     message: "At least one subject's marks must be entered.",
     path: ["testName"], // Attach error to a field so it's displayed
+}).refine(data => {
+    const subjects = [data.physics, data.chemistry, data.maths, data.botany, data.zoology];
+    for (const subject of subjects) {
+        if (subject && (subject.marks !== null && subject.marks !== undefined) && (subject.maxMarks === null || subject.maxMarks === undefined)) {
+            return false; // If marks are entered, maxMarks must also be entered
+        }
+    }
+    return true;
+}, {
+    message: "If you enter marks for a subject, you must also enter its total marks.",
+    path: ["testName"],
 });

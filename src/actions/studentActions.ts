@@ -78,7 +78,7 @@ export async function saveMarksheetData(rollNumber: string, formData: z.infer<ty
         ];
 
         subjects.forEach(subject => {
-            if(subject && subject.marks !== null && subject.maxMarks !== null) {
+            if(subject && subject.marks !== null && subject.maxMarks !== null && subject.marks !== undefined && subject.maxMarks !== undefined) {
                 calculatedTotal += subject.marks;
                 calculatedMaxTotal += subject.maxMarks;
             }

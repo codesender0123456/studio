@@ -54,7 +54,7 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
         { name: "Maths", data: marksheet.maths },
         { name: "Botany", data: marksheet.botany },
         { name: "Zoology", data: marksheet.zoology },
-    ].filter(s => s.data) as { name: string; data: SubjectMarks }[];
+    ].filter(s => s.data && s.data.marks !== null && s.data.marks !== undefined) as { name: string; data: SubjectMarks }[];
 
 
     return (
@@ -67,11 +67,14 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
              <div className="grid grid-cols-3 gap-2 p-2 border rounded-md bg-muted/20">
                 <div className="font-semibold text-center">Subject</div>
                 <div className="font-semibold text-center">Marks</div>
-                <div className="font-semibold text-center">Max Marks</div>
+                <div className="font-semibold text-center">Total Marks</div>
                 
                 {subjects.map(subject => (
                     <React.Fragment key={subject.name}>
-                        <div className="text-center">{subject.name}</div>
+                        <div className="text-center">
+                            {subject.name}
+                            {subject.data.topic && <div className="text-xs text-muted-foreground">({subject.data.topic})</div>}
+                        </div>
                         <div className="text-center">{subject.data.marks}</div>
                         <div className="text-center">{subject.data.maxMarks}</div>
                     </React.Fragment>

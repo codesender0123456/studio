@@ -83,6 +83,24 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
   const renderSubjectInput = (name: "physics" | "chemistry" | "maths" | "botany" | "zoology", label: string) => (
      <div className="space-y-2">
         <FormLabel>{label}</FormLabel>
+         <FormField
+            control={form.control}
+            name={`${name}.topic`}
+            render={({ field }) => (
+                <FormItem className="w-full">
+                <FormControl>
+                    <Input 
+                        type="text"
+                        placeholder="Topic Covered"
+                        {...field}
+                        value={field.value ?? ""}
+                        className="glowing-shadow-sm h-9"
+                        />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+        />
         <div className="flex gap-2">
             <FormField
                 control={form.control}
