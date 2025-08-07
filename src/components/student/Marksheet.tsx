@@ -156,10 +156,7 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
         </CardContent>
       </div>
       <CardFooter className="flex justify-center p-6">
-        <Button variant="ghost" onClick={onReset} className="glowing-shadow-sm" disabled={isSigningOut}>
-          {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
-          Sign Out
-        </Button>
+        
       </CardFooter>
     </Card>
   );
