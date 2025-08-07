@@ -155,6 +155,19 @@ export default function AddStudentForm() {
           />
            <FormField
             control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Set Initial Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
             name="studentName"
             render={({ field }) => (
               <FormItem>
@@ -252,19 +265,6 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
-         <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Set Initial Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
