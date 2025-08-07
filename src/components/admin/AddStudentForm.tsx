@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, AlertTriangle } from "lucide-react";
 import debounce from "lodash.debounce";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,10 +30,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { Student } from "@/lib/student-types";
-import { addStudentFormSchema } from "@/lib/schemas";
+import { addStudentFormClientSchema } from "@/lib/schemas";
 
 
-type FormValues = z.infer<typeof addStudentFormSchema>;
+type FormValues = z.infer<typeof addStudentFormClientSchema>;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +41,7 @@ export default function AddStudentForm() {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(addStudentFormSchema),
+    resolver: zodResolver(addStudentFormClientSchema),
     defaultValues: {
       rollNumber: "",
       studentName: "",
@@ -88,31 +89,56 @@ export default function AddStudentForm() {
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-    const response = await saveStudentData(values);
 
-    if (response.success) {
-      toast({
-        title: "Success",
-        description: response.message,
-      });
-      form.reset({
-        rollNumber: "",
-        studentName: "",
-        parentsName: "",
-        dateOfBirth: new Date().toISOString().split('T')[0],
-        email: "",
-        batch: "",
-        class: undefined,
-        stream: undefined
-      });
-      setExistingStudent(null);
-    } else {
-      toast({
-        title: "Error",
-        description: response.message || "An error occurred.",
-        variant: "destructive",
-      });
+    try {
+        // 1. Create user in Firebase Auth
+        const auth = getAuth();
+        const tempPassword = `password${Date.now()}`; // Temporary password
+        const userCredential = await createUserWithEmailAndPassword(auth, values.email, tempPassword);
+        const user = userCredential.user;
+
+        // 2. Save student data to Firestore with UID
+        const response = await saveStudentData({ ...values, uid: user.uid });
+
+        if (response.success) {
+            toast({
+                title: "Success",
+                description: response.message,
+            });
+            form.reset({
+                rollNumber: "",
+                studentName: "",
+                parentsName: "",
+                dateOfBirth: new Date().toISOString().split('T')[0],
+                email: "",
+                batch: "",
+                class: undefined,
+                stream: undefined
+            });
+            setExistingStudent(null);
+        } else {
+             // If Firestore save fails, we should ideally delete the created Auth user
+            // For simplicity, we'll just show an error here.
+            await user.delete(); // Attempt to clean up
+            toast({
+                title: "Error",
+                description: response.message || "An error occurred while saving student data.",
+                variant: "destructive",
+            });
+        }
+    } catch (error: any) {
+        let errorMessage = error.message || "An unknown error occurred.";
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = "This email is already in use by another account.";
+        }
+        toast({
+            title: "Authentication Error",
+            description: errorMessage,
+            variant: "destructive",
+        });
     }
+
+
     setIsSubmitting(false);
   }
 
@@ -138,7 +164,7 @@ export default function AddStudentForm() {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Student Already Exists</AlertTitle>
                 <AlertDescription>
-                  A student with this email address already exists. Please use a different email or edit the existing student record from the 'View All Students' tab.
+                  A student with this email address already exists in the database. Please use a different email or edit the existing student record.
                 </AlertDescription>
               </Alert>
             )}

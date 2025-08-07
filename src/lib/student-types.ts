@@ -1,5 +1,6 @@
 
 export type Student = {
+  id: string; // Firestore document ID
   rollNumber: string;
   studentName: string;
   parentsName: string;
