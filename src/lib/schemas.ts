@@ -27,3 +27,26 @@ export const addStudentFormSchema = z.object({
 });
 
 export const updateStudentSchema = z.object(studentBaseSchema);
+
+
+export const marksheetSchema = z.object({
+    testName: z.string().min(1, "Test Name is required."),
+    dateOfTest: z.string().refine((date) => new Date(date) <= new Date(), {
+        message: "Date of test cannot be in the future.",
+    }),
+    physics: z.coerce.number().min(0, "Marks must be positive.").max(180),
+    chemistry: z.coerce.number().min(0, "Marks must be positive.").max(180),
+    maths: z.coerce.number().min(0, "Marks must be positive.").max(120).nullable(),
+    botany: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable(),
+    zoology: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable(),
+    total: z.coerce.number().optional(),
+}).refine(data => {
+    // If stream is JEE, maths should not be null
+    if (data.maths !== null && (data.botany !== null || data.zoology !== null)) {
+        return false;
+    }
+    return true;
+}, {
+    message: "Cannot have both Maths and Biology marks for the same test.",
+    path: ["maths"], // you can specify the path to show error
+});

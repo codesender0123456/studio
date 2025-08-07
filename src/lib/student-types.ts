@@ -13,16 +13,14 @@ export type Student = {
 };
 
 export type MarksheetData = {
-  testId: string;
-  studentRollNumber: string;
+  id?: string;
+  testName: string;
   dateOfTest: string; // YYYY-MM-DD
-  subjects: {
-    physics: number;
-    chemistry: number;
-    maths: number | null;
-    zoology: number | null;
-    botany: number | null;
-  };
+  physics: number;
+  chemistry: number;
+  maths: number | null;
+  botany: number | null;
+  zoology: number | null;
   total: number;
   result: "Pass" | "Fail";
 }

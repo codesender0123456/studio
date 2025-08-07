@@ -2,9 +2,9 @@
 "use server";
 
 import { z } from "zod";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, query, where, getDoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, query, where, getDoc, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { addStudentFormSchema, updateStudentSchema } from "@/lib/schemas";
+import { addStudentFormSchema, marksheetSchema, updateStudentSchema } from "@/lib/schemas";
 
 
 // --- Server Actions ---
@@ -48,6 +48,51 @@ export async function saveStudentData(formData: z.infer<typeof addStudentFormSch
     };
   }
 }
+
+export async function saveMarksheetData(rollNumber: string, formData: z.infer<typeof marksheetSchema>) {
+    const validatedData = marksheetSchema.safeParse(formData);
+
+    if(!validatedData.success) {
+        return {
+            success: false,
+            message: "Invalid data provided.",
+            errors: validatedData.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        const studentRef = doc(db, "students", rollNumber.toLowerCase());
+        const marksCollectionRef = collection(studentRef, "marks");
+        
+        const { total, ...marksheetData } = validatedData.data;
+
+        let calculatedTotal = marksheetData.physics + marksheetData.chemistry;
+        if(marksheetData.maths) calculatedTotal += marksheetData.maths;
+        if(marksheetData.botany) calculatedTotal += marksheetData.botany;
+        if(marksheetData.zoology) calculatedTotal += marksheetData.zoology;
+
+        const dataToSave = {
+            ...marksheetData,
+            total: calculatedTotal,
+            // You could add more logic here to determine pass/fail status
+        }
+        
+        await addDoc(marksCollectionRef, dataToSave);
+
+        return {
+            success: true,
+            message: "Successfully added marksheet data.",
+        }
+
+    } catch (error: any) {
+        console.error("Error adding marksheet: ", error);
+        return {
+            success: false,
+            message: error.message || "An unknown error occurred while communicating with the database.",
+        }
+    }
+}
+
 
 export async function getStudentByEmail(email: string) {
     if (!email) {
