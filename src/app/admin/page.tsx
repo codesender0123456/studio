@@ -47,7 +47,17 @@ export default function AdminPage() {
         {isLoggedIn ? (
           <AdminDashboard onLogout={handleLogout} />
         ) : (
-          <AdminLoginForm onLogin={handleLogin} loading={loading} error={error} />
+          <>
+            <AdminLoginForm onLogin={handleLogin} loading={loading} error={error} />
+            <div className="text-center mt-6">
+                <Button asChild variant="ghost" className="glowing-shadow-sm">
+                    <Link href="/">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Student Portal
+                    </Link>
+                </Button>
+            </div>
+          </>
         )}
       </div>
     </main>
