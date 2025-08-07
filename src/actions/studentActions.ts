@@ -64,19 +64,31 @@ export async function saveMarksheetData(rollNumber: string, formData: z.infer<ty
         const studentRef = doc(db, "students", rollNumber.toLowerCase());
         const marksCollectionRef = collection(studentRef, "marks");
         
-        const { total, ...marksheetData } = validatedData.data;
+        const { ...marksheetData } = validatedData.data;
 
         let calculatedTotal = 0;
-        if(marksheetData.physics) calculatedTotal += marksheetData.physics;
-        if(marksheetData.chemistry) calculatedTotal += marksheetData.chemistry;
-        if(marksheetData.maths) calculatedTotal += marksheetData.maths;
-        if(marksheetData.botany) calculatedTotal += marksheetData.botany;
-        if(marksheetData.zoology) calculatedTotal += marksheetData.zoology;
+        let calculatedMaxTotal = 0;
+
+        const subjects = [
+            marksheetData.physics, 
+            marksheetData.chemistry, 
+            marksheetData.maths, 
+            marksheetData.botany, 
+            marksheetData.zoology
+        ];
+
+        subjects.forEach(subject => {
+            if(subject && subject.marks !== null && subject.maxMarks !== null) {
+                calculatedTotal += subject.marks;
+                calculatedMaxTotal += subject.maxMarks;
+            }
+        })
+
 
         const dataToSave = {
             ...marksheetData,
             total: calculatedTotal,
-            // You could add more logic here to determine pass/fail status
+            totalMax: calculatedMaxTotal,
         }
         
         await addDoc(marksCollectionRef, dataToSave);

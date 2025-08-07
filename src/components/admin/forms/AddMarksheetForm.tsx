@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
@@ -42,12 +42,13 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
     defaultValues: {
         testName: "",
         dateOfTest: new Date().toISOString().split('T')[0],
-        physics: null,
-        chemistry: null,
-        maths: null,
-        botany: null,
-        zoology: null,
+        physics: undefined,
+        chemistry: undefined,
+        maths: undefined,
+        botany: undefined,
+        zoology: undefined,
     },
+    mode: "onBlur"
   });
 
   async function onSubmit(values: FormValues) {
@@ -62,11 +63,11 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
         form.reset({
             testName: "",
             dateOfTest: new Date().toISOString().split('T')[0],
-            physics: null,
-            chemistry: null,
-            maths: null,
-            botany: null,
-            zoology: null,
+            physics: undefined,
+            chemistry: undefined,
+            maths: undefined,
+            botany: undefined,
+            zoology: undefined,
         });
     } else {
         toast({
@@ -79,16 +80,52 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
     setIsSubmitting(false);
   }
 
-  const renderNumberInput = (field: any, placeholder: string) => (
-    <Input 
-        type="number" 
-        placeholder={placeholder}
-        {...field}
-        onChange={e => field.onChange(e.target.value === '' ? null : e.target.valueAsNumber)}
-        value={field.value ?? ""}
-        className="glowing-shadow-sm" 
-    />
+  const renderSubjectInput = (name: "physics" | "chemistry" | "maths" | "botany" | "zoology", label: string) => (
+     <div className="space-y-2">
+        <FormLabel>{label}</FormLabel>
+        <div className="flex gap-2">
+            <FormField
+                control={form.control}
+                name={`${name}.marks`}
+                render={({ field }) => (
+                    <FormItem className="w-full">
+                    <FormControl>
+                        <Input 
+                            type="number"
+                            placeholder="Marks"
+                            {...field}
+                            onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
+                            value={field.value ?? ""}
+                            className="glowing-shadow-sm"
+                         />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name={`${name}.maxMarks`}
+                render={({ field }) => (
+                    <FormItem className="w-full">
+                    <FormControl>
+                        <Input 
+                            type="number" 
+                            placeholder="Max Marks"
+                             {...field}
+                            onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
+                            value={field.value ?? ""}
+                            className="glowing-shadow-sm"
+                        />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+    </div>
   )
+
 
   return (
     <Form {...form}>
@@ -123,76 +160,18 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
         </div>
         <div className="space-y-4">
             <p className="text-sm font-medium text-muted-foreground">Enter marks only for the subjects included in this test.</p>
+            {form.formState.errors.testName && <FormMessage>{form.formState.errors.testName.message}</FormMessage>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                    control={form.control}
-                    name="physics"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Physics Marks</FormLabel>
-                        <FormControl>
-                            {renderNumberInput(field, "out of 180")}
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="chemistry"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Chemistry Marks</FormLabel>
-                        <FormControl>
-                            {renderNumberInput(field, "out of 180")}
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
+                {renderSubjectInput("physics", "Physics")}
+                {renderSubjectInput("chemistry", "Chemistry")}
+
                 {(isJeeStudent || isRegularOrCet) && (
-                    <FormField
-                        control={form.control}
-                        name="maths"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Maths Marks</FormLabel>
-                            <FormControl>
-                                {renderNumberInput(field, "out of 120")}
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                    renderSubjectInput("maths", "Maths")
                 )}
                 {(isNeetStudent || isRegularOrCet) && (
                     <>
-                        <FormField
-                            control={form.control}
-                            name="botany"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Botany Marks</FormLabel>
-                                <FormControl>
-                                    {renderNumberInput(field, "out of 180")}
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="zoology"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Zoology Marks</FormLabel>
-                                <FormControl>
-                                    {renderNumberInput(field, "out of 180")}
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
+                        {renderSubjectInput("botany", "Botany")}
+                        {renderSubjectInput("zoology", "Zoology")}
                     </>
                 )}
             </div>

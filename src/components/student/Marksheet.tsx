@@ -1,6 +1,6 @@
 
 "use client";
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { collection, getDocs, query, orderBy, doc } from "firebase/firestore";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { Student, MarksheetData } from "@/lib/student-types";
+import type { Student, MarksheetData, SubjectMarks } from "@/lib/student-types";
 import { Icons } from "@/components/common/Icons";
 import {
   Accordion,
@@ -48,28 +48,21 @@ const MarksheetDetails = ({ student }: { student: Student }) => {
 }
 
 const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
-    let totalMarks = 0;
-    if (marksheet.physics !== null && marksheet.physics !== undefined) totalMarks += 180;
-    if (marksheet.chemistry !== null && marksheet.chemistry !== undefined) totalMarks += 180;
-    if (marksheet.maths !== null && marksheet.maths !== undefined) totalMarks += 120;
-    if (marksheet.botany !== null && marksheet.botany !== undefined) totalMarks += 180;
-    if (marksheet.zoology !== null && marksheet.zoology !== undefined) totalMarks += 180;
-
     const subjects = [
-        { name: "Physics", marks: marksheet.physics, max: 180 },
-        { name: "Chemistry", marks: marksheet.chemistry, max: 180 },
-        { name: "Maths", marks: marksheet.maths, max: 120 },
-        { name: "Botany", marks: marksheet.botany, max: 180 },
-        { name: "Zoology", marks: marksheet.zoology, max: 180 },
-    ].filter(s => s.marks !== null && s.marks !== undefined);
+        { name: "Physics", data: marksheet.physics },
+        { name: "Chemistry", data: marksheet.chemistry },
+        { name: "Maths", data: marksheet.maths },
+        { name: "Botany", data: marksheet.botany },
+        { name: "Zoology", data: marksheet.zoology },
+    ].filter(s => s.data) as { name: string; data: SubjectMarks }[];
 
 
     return (
         <div className="text-sm">
             <div className="grid grid-cols-3 gap-2 mb-2">
                 <div><span className="font-semibold text-muted-foreground">Test Date:</span> {marksheet.dateOfTest}</div>
-                <div className="text-center"><span className="font-semibold text-muted-foreground">Total:</span> {marksheet.total} / {totalMarks}</div>
-                <div className="text-right"><span className="font-semibold text-muted-foreground">Result:</span> <Badge variant={marksheet.total > (totalMarks/2) ? 'default' : 'destructive'}>{marksheet.total > (totalMarks/2) ? 'Pass' : 'Fail'}</Badge></div>
+                <div className="text-center"><span className="font-semibold text-muted-foreground">Total:</span> {marksheet.total} / {marksheet.totalMax}</div>
+                <div className="text-right"><span className="font-semibold text-muted-foreground">Result:</span> <Badge variant={marksheet.total > (marksheet.totalMax/2) ? 'default' : 'destructive'}>{marksheet.total > (marksheet.totalMax/2) ? 'Pass' : 'Fail'}</Badge></div>
             </div>
              <div className="grid grid-cols-3 gap-2 p-2 border rounded-md bg-muted/20">
                 <div className="font-semibold text-center">Subject</div>
@@ -79,8 +72,8 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
                 {subjects.map(subject => (
                     <React.Fragment key={subject.name}>
                         <div className="text-center">{subject.name}</div>
-                        <div className="text-center">{subject.marks}</div>
-                        <div className="text-center">{subject.max}</div>
+                        <div className="text-center">{subject.data.marks}</div>
+                        <div className="text-center">{subject.data.maxMarks}</div>
                     </React.Fragment>
                 ))}
             </div>

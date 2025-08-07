@@ -29,15 +29,25 @@ export const addStudentFormSchema = z.object({
 export const updateStudentSchema = z.object(studentBaseSchema);
 
 
+const subjectMarksSchema = z.object({
+    marks: z.coerce.number().min(0, "Marks must be positive."),
+    maxMarks: z.coerce.number().min(1, "Max marks must be greater than 0."),
+}).optional().nullable();
+
 export const marksheetSchema = z.object({
     testName: z.string().min(1, "Test Name is required."),
     dateOfTest: z.string().refine((date) => new Date(date) <= new Date(), {
         message: "Date of test cannot be in the future.",
     }),
-    physics: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable().optional(),
-    chemistry: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable().optional(),
-    maths: z.coerce.number().min(0, "Marks must be positive.").max(120).nullable().optional(),
-    botany: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable().optional(),
-    zoology: z.coerce.number().min(0, "Marks must be positive.").max(180).nullable().optional(),
-    total: z.coerce.number().optional(),
+    physics: subjectMarksSchema,
+    chemistry: subjectMarksSchema,
+    maths: subjectMarksSchema,
+    botany: subjectMarksSchema,
+    zoology: subjectMarksSchema,
+}).refine(data => {
+    const subjects = [data.physics, data.chemistry, data.maths, data.botany, data.zoology];
+    return subjects.some(subject => subject && subject.marks !== null && subject.maxMarks !== null);
+}, {
+    message: "At least one subject's marks must be entered.",
+    path: ["testName"], // Attach error to a field so it's displayed
 });
