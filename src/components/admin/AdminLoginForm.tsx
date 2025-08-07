@@ -31,14 +31,14 @@ export default function AdminLoginForm() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
-    // IMPORTANT: Replace this with the email of the authorized admin user.
-    const ADMIN_EMAIL = "codesender0123456@gmail.com";
+    // To add more administrators, simply add their email addresses to this list.
+    const ADMIN_EMAILS = ["codesender0123456@gmail.com"];
 
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      if (user.email === ADMIN_EMAIL) {
+      if (user.email && ADMIN_EMAILS.includes(user.email)) {
         toast({ title: "Success", description: "Welcome, Admin. You are now signed in." });
       } else {
         await auth.signOut();
