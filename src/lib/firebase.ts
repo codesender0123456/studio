@@ -5,14 +5,14 @@ import { getFirestore } from "firebase/firestore";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-// REPLACE THIS WITH YOUR ACTUAL FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyA1_r1Fc7ESybCMvGH1w-CI76emCtpP_RI",
+  authDomain: "pheniox-academy-student-result.firebaseapp.com",
+  projectId: "pheniox-academy-student-result",
+  storageBucket: "pheniox-academy-student-result.firebasestorage.app",
+  messagingSenderId: "75218136369",
+  appId: "1:75218136369:web:08520ddc161d00a9af9410",
+  measurementId: "G-LT212Q697R"
 };
 
 // Initialize Firebase
