@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm, useWatch } from "react-hook-form";
@@ -158,7 +157,7 @@ export default function AddStudentForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Set Initial Password</FormLabel>
+                <FormLabel>Set Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
                 </FormControl>
