@@ -2,15 +2,14 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { collection, getDocs, query, orderBy, doc } from "firebase/firestore";
-import { Download, Loader2, LogOut, ChevronDown } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Student, MarksheetData, SubjectMarks } from "@/lib/student-types";
-import { Icons } from "@/components/common/Icons";
 import {
   Accordion,
   AccordionContent,
@@ -86,7 +85,7 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
   const [marks, setMarks] = useState<MarksheetData[]>([]);
   const [loadingMarks, setLoadingMarks] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   useEffect(() => {
     const fetchMarks = async () => {
         if(!student.rollNumber) return;
@@ -110,14 +109,8 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
       <div className="p-6 bg-transparent">
-        <CardHeader className="p-0 mb-4 text-center">
-            <div className="flex flex-col justify-center items-center gap-4 mb-4">
-                <Icons.logo className="h-20 w-20 text-primary" />
-                <h1 className="text-4xl sm:text-5xl font-bold font-headline text-glow whitespace-nowrap">
-                Phoenix Science Academy
-                </h1>
-            </div>
-             <p className="text-sm text-center text-muted-foreground">Student Marksheet</p>
+        <CardHeader className="p-0 mb-4">
+             <CardTitle className="text-2xl text-center text-glow font-headline">Student Marksheet</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
             <Accordion type="single" collapsible defaultValue="details">
