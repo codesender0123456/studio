@@ -61,7 +61,7 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     let message = "An error occurred while communicating with the database.";
     if (error.code === 'auth/email-already-exists') {
         message = "A student with this email address already exists.";
-    } else if (error.message.includes("Firebase Admin SDK initialization failed")) {
+    } else if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
         message = "Server configuration error. Could not connect to Firebase services."
     }
     return {
@@ -138,7 +138,7 @@ export async function resetStudentPassword(uid: string, formData: z.infer<typeof
     } catch (error: any) {
         console.error("Error resetting password:", error);
         let message = "Failed to reset password.";
-        if (error.message.includes("Firebase Admin SDK initialization failed")) {
+        if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
             message = "Server configuration error. Could not connect to Firebase services."
         }
         return { success: false, message };
@@ -169,7 +169,7 @@ export async function deleteStudent(rollNumber: string, email: string) {
   } catch (error: any) {
     console.error("Error deleting document: ", error);
     let message = "An error occurred while communicating with the database.";
-     if (error.message.includes("Firebase Admin SDK initialization failed")) {
+     if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
         message = "Server configuration error. Could not connect to Firebase services."
     }
     return {
