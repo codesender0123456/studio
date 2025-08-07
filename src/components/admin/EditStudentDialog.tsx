@@ -94,7 +94,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
 
   async function onDelete() {
     setIsDeleting(true);
-    const response = await deleteStudent(student.rollNumber);
+    const response = await deleteStudent(student.rollNumber, student.email);
      if (response.success) {
       toast({
         title: "Success",
@@ -247,7 +247,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                             <AlertDialogDescription>
                                 This action cannot be undone. This will permanently delete the student's
-                                record from the database.
+                                record from the database and their login account.
                             </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

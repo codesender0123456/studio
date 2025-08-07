@@ -32,6 +32,7 @@ const formSchema = z.object({
   parentsName: z.string().min(1, "Parent's Name is required"),
   dateOfTest: z.string().min(1, "Date of Test is required"),
   email: z.string().email("A valid email is required for student login."),
+  password: z.string().min(6, "Password must be at least 6 characters."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
   batch: z.string().min(1, "Batch is required"),
@@ -51,6 +52,7 @@ export default function AddStudentForm() {
       parentsName: "",
       dateOfTest: "",
       email: "",
+      password: "",
       batch: "",
     },
   });
@@ -136,10 +138,23 @@ export default function AddStudentForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Student's Google Email</FormLabel>
+              <FormItem>
+                <FormLabel>Student's Login Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="student.email@gmail.com" {...field} className="glowing-shadow-sm" />
+                  <Input type="email" placeholder="student.email@example.com" {...field} className="glowing-shadow-sm" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Set Initial Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
