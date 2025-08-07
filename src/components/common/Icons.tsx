@@ -1,18 +1,14 @@
+import Image from "next/image";
+
 export const Icons = {
-    logo: (props: React.SVGProps<SVGSVGElement>) => (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+    logo: (props: Omit<React.ComponentProps<typeof Image>, 'src' | 'alt'>) => (
+        <Image
+            src="https://img77.uenicdn.com/image/upload/v1561895850/business/phoenix-science-academy-malkapur/d300ef86-3f4e-4b84-b10c-b8cd743b0696.jpg"
+            alt="Phoenix Science Academy Logo"
+            width={props.width ? Number(props.width) : 50}
+            height={props.height ? Number(props.height) : 50}
+            className="rounded-full"
             {...props}
-        >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-        </svg>
+        />
     ),
 };
