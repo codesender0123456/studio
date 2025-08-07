@@ -40,7 +40,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
       classFilter === "all" ? true : student.class === Number(classFilter)
     )
     .filter((student) =>
-      streamFilter === "all" ? true : student.stream === streamFilter
+      streamFilter === "all" || streamFilter === "Regular Batch" ? true : student.stream === streamFilter
     );
 
   return (
@@ -72,6 +72,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                     <SelectItem value="JEE">JEE</SelectItem>
                     <SelectItem value="NEET">NEET</SelectItem>
                     <SelectItem value="MHT-CET">MHT-CET</SelectItem>
+                    <SelectItem value="Regular Batch">Regular Batch</SelectItem>
                 </SelectContent>
             </Select>
         </div>
