@@ -151,7 +151,7 @@ export default function AddStudentForm() {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Student Already Exists</AlertTitle>
                 <AlertDescription>
-                  A student with this email address already exists in the system. Please use a different email or edit the existing student record from the 'View All Students' tab.
+                  A student with this email address already exists. Please use a different email or edit the existing student record from the 'View All Students' tab.
                 </AlertDescription>
               </Alert>
             )}
