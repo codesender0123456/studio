@@ -50,13 +50,6 @@ export default function AdminPage() {
           <AdminLoginForm onLogin={handleLogin} loading={loading} error={error} />
         )}
       </div>
-      <div className="absolute top-4 left-4">
-          <Button asChild variant="ghost" className="glowing-shadow-sm">
-            <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Student Portal
-            </Link>
-          </Button>
-        </div>
     </main>
   );
 }
