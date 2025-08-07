@@ -46,8 +46,6 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
               <TableHead>Class</TableHead>
               <TableHead>Stream</TableHead>
               <TableHead>Batch</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead className="text-center">Result</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -61,19 +59,6 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                     <Badge variant="secondary">{student.stream}</Badge>
                 </TableCell>
                 <TableCell>{student.batch}</TableCell>
-                <TableCell className="text-right">{student.total}</TableCell>
-                <TableCell className="text-center">
-                  <Badge
-                    className={cn(
-                      student.result === "Pass"
-                        ? "bg-primary/20 text-primary border-primary/50"
-                        : "bg-destructive/20 text-destructive border-destructive/50"
-                    )}
-                    variant="outline"
-                  >
-                    {student.result}
-                  </Badge>
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>
