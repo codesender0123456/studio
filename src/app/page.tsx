@@ -1,9 +1,10 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getFirestore } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 import type { Student } from "@/lib/student-types";
@@ -23,6 +24,30 @@ export default function Home() {
   const [studentData, setStudentData] = useState<Student | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [connectionStatus, setConnectionStatus] = useState("Checking connection...");
+
+  useEffect(() => {
+    // Test Firestore connection
+    const testConnection = async () => {
+      try {
+        const testDocRef = doc(db, "internal", "connection-test");
+        await setDoc(testDocRef, { timestamp: new Date() });
+        const docSnap = await getDoc(testDocRef);
+        if (docSnap.exists()) {
+          setConnectionStatus("Connection to database successful!");
+          setError(null);
+        } else {
+          throw new Error("Test document not found after writing.");
+        }
+      } catch (err: any) {
+        console.error("Firestore connection test failed:", err);
+        setConnectionStatus("Failed to connect to the database.");
+        setError(`Connection Error: ${err.message}. Please ensure you have enabled Firestore in your Firebase project and check the browser console for more details.`);
+      }
+    };
+    testConnection();
+  }, []);
+
 
   const handleSearch = async (rollNumber: string) => {
     setLoading(true);
@@ -71,7 +96,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="font-headline text-2xl text-center">Student Portal</CardTitle>
               <CardDescription className="text-center">
-                Enter your roll number to view your marksheet.
+                {connectionStatus}
               </CardDescription>
             </CardHeader>
             <CardContent>
