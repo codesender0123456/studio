@@ -7,23 +7,36 @@ import * as admin from "firebase-admin";
 let app: admin.app.App;
 
 if (!admin.apps.length) {
+  const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  };
+
   try {
-    app = admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
-    });
-  } catch (error) {
-    console.error("Firebase admin initialization error", error);
-    // You might want to throw the error or handle it in a way that
-    // prevents the rest of the app from running without Firebase.
+    // Check if all required environment variables are present
+    if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+      app = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    } else {
+      console.warn("Firebase Admin credentials are not fully set. Skipping initialization.");
+    }
+  } catch (error: any) {
+    console.error("Firebase admin initialization error", error.message);
   }
 } else {
   app = admin.app();
 }
 
+// Ensure app is defined before exporting auth and db
+const authAdmin = app ? admin.auth(app) : null;
+const dbAdmin = app ? admin.firestore(app) : null;
 
-export const authAdmin = admin.auth(app);
-export const dbAdmin = admin.firestore(app);
+
+// We will throw an error if the services are not available when used in actions.
+if (!authAdmin || !dbAdmin) {
+    console.error("Firebase Admin SDK is not initialized. Make sure all environment variables (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY) are set correctly.");
+}
+
+export { authAdmin, dbAdmin };

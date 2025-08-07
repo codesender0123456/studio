@@ -25,6 +25,9 @@ const resetPasswordSchema = z.object({
 
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
+  if (!authAdmin) {
+    return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
+  }
   const validatedData = addStudentFormSchema.safeParse(formData);
 
   if (!validatedData.success) {
@@ -100,6 +103,9 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
 }
 
 export async function resetStudentPassword(uid: string, formData: z.infer<typeof resetPasswordSchema>) {
+    if (!authAdmin) {
+      return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
+    }
     const validatedData = resetPasswordSchema.safeParse(formData);
     if (!validatedData.success) {
         return {
@@ -121,6 +127,9 @@ export async function resetStudentPassword(uid: string, formData: z.infer<typeof
 
 
 export async function deleteStudent(rollNumber: string, email: string) {
+  if (!authAdmin) {
+    return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
+  }
   if (!rollNumber) {
     return { success: false, message: "Roll Number is required." };
   }
