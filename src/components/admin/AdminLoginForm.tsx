@@ -32,7 +32,7 @@ export default function AdminLoginForm() {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     // IMPORTANT: Replace this with the email of the authorized admin user.
-    const ADMIN_EMAIL = "your-admin-email@example.com";
+    const ADMIN_EMAIL = "codesender0123456@gmail.com";
 
     try {
       const result = await signInWithPopup(auth, provider);
