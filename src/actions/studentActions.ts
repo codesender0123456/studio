@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
 import { db } from "@/lib/firebase";
-import { authAdmin } from "@/lib/firebase-admin";
+import { getAdminServices } from "@/lib/firebase-admin";
 
 const studentSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
@@ -26,22 +26,20 @@ const resetPasswordSchema = z.object({
 
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
-  if (!authAdmin) {
-    return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
-  }
-  const validatedData = addStudentFormSchema.safeParse(formData);
-
-  if (!validatedData.success) {
-    return {
-      success: false,
-      message: "Invalid data provided.",
-      errors: validatedData.error.flatten().fieldErrors,
-    };
-  }
-
-  const { email, password, ...studentData } = validatedData.data;
-
   try {
+    const { authAdmin } = getAdminServices();
+    const validatedData = addStudentFormSchema.safeParse(formData);
+
+    if (!validatedData.success) {
+      return {
+        success: false,
+        message: "Invalid data provided.",
+        errors: validatedData.error.flatten().fieldErrors,
+      };
+    }
+
+    const { email, password, ...studentData } = validatedData.data;
+
     // 1. Create Firebase Auth user
     const userRecord = await authAdmin.createUser({
       email: email,
@@ -62,6 +60,8 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     let message = "An error occurred while communicating with the database.";
     if (error.code === 'auth/email-already-exists') {
         message = "A student with this email address already exists.";
+    } else if (error.message.includes("Firebase Admin SDK initialization failed")) {
+        message = "Server configuration error. Could not connect to Firebase services."
     }
     return {
       success: false,
@@ -102,18 +102,13 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
     };
   }
   
-  // Note: We are not updating the password here. That's a separate action.
-  // We may need to update the user's email in Auth if it changes.
-  // For now, we assume the email in Auth is the source of truth for login.
-  // A more complex implementation might handle email changes.
-
   try {
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await updateDoc(studentRef, validatedData.data);
     
     return {
       success: true,
-message: `Successfully updated student ${validatedData.data.studentName}.`,
+      message: `Successfully updated student ${validatedData.data.studentName}.`,
     };
   } catch (error) {
     console.error("Error updating document: ", error);
@@ -125,38 +120,39 @@ message: `Successfully updated student ${validatedData.data.studentName}.`,
 }
 
 export async function resetStudentPassword(uid: string, formData: z.infer<typeof resetPasswordSchema>) {
-    if (!authAdmin) {
-      return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
-    }
-    const validatedData = resetPasswordSchema.safeParse(formData);
-    if (!validatedData.success) {
-        return {
-            success: false,
-            message: "Invalid data provided.",
-            errors: validatedData.error.flatten().fieldErrors,
-        };
-    }
     try {
+        const { authAdmin } = getAdminServices();
+        const validatedData = resetPasswordSchema.safeParse(formData);
+        if (!validatedData.success) {
+            return {
+                success: false,
+                message: "Invalid data provided.",
+                errors: validatedData.error.flatten().fieldErrors,
+            };
+        }
         await authAdmin.updateUser(uid, {
             password: validatedData.data.password,
         });
         return { success: true, message: "Password updated successfully." };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error resetting password:", error);
-        return { success: false, message: "Failed to reset password." };
+        let message = "Failed to reset password.";
+        if (error.message.includes("Firebase Admin SDK initialization failed")) {
+            message = "Server configuration error. Could not connect to Firebase services."
+        }
+        return { success: false, message };
     }
 }
 
 
 export async function deleteStudent(rollNumber: string, email: string) {
-  if (!authAdmin) {
-    return { success: false, message: "Firebase Admin is not initialized. Please check server logs."};
-  }
   if (!rollNumber) {
     return { success: false, message: "Roll Number is required." };
   }
   
   try {
+    const { authAdmin } = getAdminServices();
+
     // 1. Delete from Firestore
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await deleteDoc(studentRef);
@@ -169,11 +165,15 @@ export async function deleteStudent(rollNumber: string, email: string) {
       success: true,
       message: "Successfully deleted student.",
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting document: ", error);
+    let message = "An error occurred while communicating with the database.";
+     if (error.message.includes("Firebase Admin SDK initialization failed")) {
+        message = "Server configuration error. Could not connect to Firebase services."
+    }
     return {
       success: false,
-      message: "An error occurred while communicating with the database.",
+      message: message,
     };
   }
 }
