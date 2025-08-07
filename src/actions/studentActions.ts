@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc, deleteDoc, updateDoc } from "firebase/firestore"; 
 import { db } from "@/lib/firebase";
 
 const studentSchema = z.object({
@@ -13,6 +13,8 @@ const studentSchema = z.object({
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
   batch: z.string().min(1, "Batch is required"),
 });
+
+const updateStudentSchema = studentSchema.omit({ rollNumber: true });
 
 export async function addStudent(formData: z.infer<typeof studentSchema>) {
   const validatedData = studentSchema.safeParse(formData);
@@ -26,7 +28,6 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
   }
 
   try {
-    // Use rollNumber as the document ID
     const studentRef = doc(db, "students", validatedData.data.rollNumber.toLowerCase());
     await setDoc(studentRef, validatedData.data);
     
@@ -36,6 +37,55 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
     };
   } catch (error) {
     console.error("Error adding document: ", error);
+    return {
+      success: false,
+      message: "An error occurred while communicating with the database.",
+    };
+  }
+}
+
+export async function updateStudent(rollNumber: string, formData: z.infer<typeof updateStudentSchema>) {
+  const validatedData = updateStudentSchema.safeParse(formData);
+
+  if (!validatedData.success) {
+    return {
+      success: false,
+      message: "Invalid data provided.",
+      errors: validatedData.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    const studentRef = doc(db, "students", rollNumber.toLowerCase());
+    await updateDoc(studentRef, validatedData.data);
+    
+    return {
+      success: true,
+      message: `Successfully updated student ${validatedData.data.studentName}.`,
+    };
+  } catch (error) {
+    console.error("Error updating document: ", error);
+    return {
+      success: false,
+      message: "An error occurred while communicating with the database.",
+    };
+  }
+}
+
+export async function deleteStudent(rollNumber: string) {
+  if (!rollNumber) {
+    return { success: false, message: "Roll Number is required." };
+  }
+  
+  try {
+    const studentRef = doc(db, "students", rollNumber.toLowerCase());
+    await deleteDoc(studentRef);
+    return {
+      success: true,
+      message: "Successfully deleted student.",
+    };
+  } catch (error) {
+    console.error("Error deleting document: ", error);
     return {
       success: false,
       message: "An error occurred while communicating with the database.",
