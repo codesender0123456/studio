@@ -3,37 +3,25 @@
 
 import { z } from "zod";
 import * as admin from "firebase-admin";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // --- Firebase Admin SDK Initialization ---
-let adminApp: admin.app.App;
-
 function getAdminApp() {
-  if (adminApp) {
-    return adminApp;
-  }
-
   const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!serviceAccountEnv) {
-    throw new Error("The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set.");
+    throw new Error("Server Configuration Error: The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set.");
   }
 
-  try {
-    const serviceAccount = JSON.parse(serviceAccountEnv);
-    
-    if (admin.apps.length > 0) {
-      adminApp = admin.app();
-    } else {
-      adminApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-    }
-    return adminApp;
-  } catch (error: any) {
-    console.error("Firebase Admin SDK initialization error:", error);
-    throw new Error(`Firebase Admin SDK initialization failed: ${error.message}`);
+  const serviceAccount = JSON.parse(serviceAccountEnv);
+  
+  if (admin.apps.length > 0) {
+    return admin.app();
   }
+  
+  return admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 }
 
 function getAuth() {
@@ -54,6 +42,7 @@ function getFirestore() {
   }
 }
 
+
 // --- Schemas ---
 
 const studentSchema = z.object({
@@ -69,14 +58,16 @@ const studentSchema = z.object({
   batch: z.string().min(1, "Batch is required"),
 });
 
-const addStudentFormSchema = studentSchema;
+// For client-side form validation
+export const addStudentFormSchema = studentSchema.extend({
+  uid: z.string().min(1, "User ID is required."),
+});
 const updateStudentSchema = studentSchema.omit({ rollNumber: true });
 
 // --- Server Actions ---
 
-export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
+export async function saveStudentData(formData: z.infer<typeof addStudentFormSchema>) {
   try {
-    const authAdmin = getAuth();
     const validatedData = addStudentFormSchema.safeParse(formData);
 
     if (!validatedData.success) {
@@ -86,29 +77,20 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
         errors: validatedData.error.flatten().fieldErrors,
       };
     }
-
-    const { email, ...studentData } = validatedData.data;
-
-    try {
-      await authAdmin.getUserByEmail(email);
-      return {
-        success: false,
-        message: "A user with this email address already exists. Please use a different email.",
-      };
-    } catch (error: any) {
-      if (error.code !== 'auth/user-not-found') {
-        console.error("Error checking user:", error);
-        return { success: false, message: error.message || "An unexpected error occurred while checking user existence." };
-      }
-    }
     
-    const userRecord = await authAdmin.createUser({
-      email: email,
-      displayName: studentData.studentName,
-    });
+    const { email, uid, ...studentData } = validatedData.data;
     
     const studentRef = doc(db, "students", studentData.rollNumber.toLowerCase());
-    await setDoc(studentRef, { ...studentData, email, uid: userRecord.uid });
+
+    const docSnap = await getDoc(studentRef);
+    if (docSnap.exists()) {
+      return {
+        success: false,
+        message: `A student with Roll Number ${studentData.rollNumber} already exists.`,
+      };
+    }
+
+    await setDoc(studentRef, { ...studentData, email, uid });
     
     return {
       success: true,
@@ -116,12 +98,6 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
-    if (error.message.includes("environment variable is not set")) {
-        return {
-            success: false,
-            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
-        };
-    }
     return {
       success: false,
       message: error.message || "An unknown error occurred while communicating with the database.",
@@ -178,9 +154,12 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
   }
 }
 
-export async function deleteStudent(rollNumber: string, email: string) {
+export async function deleteStudent(rollNumber: string, uid: string) {
   if (!rollNumber) {
     return { success: false, message: "Roll Number is required." };
+  }
+  if (!uid) {
+    return { success: false, message: "User ID is required to delete the account." };
   }
   
   try {
@@ -189,15 +168,20 @@ export async function deleteStudent(rollNumber: string, email: string) {
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await deleteDoc(studentRef);
 
-    const user = await authAdmin.getUserByEmail(email);
-    await authAdmin.deleteUser(user.uid);
+    await authAdmin.deleteUser(uid);
 
     return {
       success: true,
-      message: "Successfully deleted student.",
+      message: "Successfully deleted student and their account.",
     };
   } catch (error: any) {
-    console.error("Error deleting document: ", error);
+    console.error("Error deleting student: ", error);
+    if (error.code === 'auth/user-not-found') {
+        // If user doesn't exist in auth, but we still want to delete from firestore
+        const studentRef = doc(db, "students", rollNumber.toLowerCase());
+        await deleteDoc(studentRef);
+        return { success: true, message: "Student record deleted. The associated user account was not found." };
+    }
     if (error.message.includes("environment variable is not set")) {
         return {
             success: false,

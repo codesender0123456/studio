@@ -8,6 +8,7 @@ export type Student = {
   class: 11 | 12;
   stream: "JEE" | "NEET" | "MHT-CET" | "Regular Batch";
   batch: string; // e.g., "2022-2024"
+  uid?: string; // Firebase Auth User ID
 };
 
 export type MarksheetData = {

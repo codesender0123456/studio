@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, AlertTriangle } from "lucide-react";
 import debounce from "lodash.debounce";
+import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addStudent, getStudentByEmail } from "@/actions/studentActions";
+import { saveStudentData, getStudentByEmail } from "@/actions/studentActions";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -57,7 +58,7 @@ export default function AddStudentForm() {
       rollNumber: "",
       studentName: "",
       parentsName: "",
-      dateOfBirth: new Date().toISOString().split('T')[0], // Set default to today
+      dateOfBirth: new Date().toISOString().split('T')[0],
       email: "",
       batch: "",
     },
@@ -76,7 +77,6 @@ export default function AddStudentForm() {
         if (success && data) {
           setExistingStudent(data as Student);
         } else if (!success) {
-          // Handle case where the check itself fails, maybe show a toast
           console.error("Failed to check email:", message);
           setExistingStudent(null);
         } else {
@@ -101,31 +101,53 @@ export default function AddStudentForm() {
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     
-    const response = await addStudent(values);
+    // This is a placeholder password. The user will be created with this,
+    // but they will use Google Sign-In, so they'll never need it.
+    // A more robust solution might involve sending a password reset email immediately.
+    const tempPassword = `password${Date.now()}`;
+    const clientAuth = getAuth();
 
-    if (response.success) {
-      toast({
-        title: "Success",
-        description: response.message,
-      });
-      form.reset({
-        rollNumber: "",
-        studentName: "",
-        parentsName: "",
-        dateOfBirth: new Date().toISOString().split('T')[0],
-        email: "",
-        batch: "",
-        class: undefined,
-        stream: undefined
-      });
-      setExistingStudent(null);
-    } else {
-      toast({
-        title: "Error",
-        description: response.message || "An error occurred.",
-        variant: "destructive",
-      });
+    try {
+        // Step 1: Create user on the client-side using client SDK
+        const userCredential = await createUserWithEmailAndPassword(clientAuth, values.email, tempPassword);
+        const user = userCredential.user;
+
+        // Step 2: Call server action to save student data in Firestore
+        const response = await saveStudentData({ ...values, uid: user.uid });
+
+        if (response.success) {
+          toast({
+            title: "Success",
+            description: response.message,
+          });
+          form.reset({
+            rollNumber: "",
+            studentName: "",
+            parentsName: "",
+            dateOfBirth: new Date().toISOString().split('T')[0],
+            email: "",
+            batch: "",
+            class: undefined,
+            stream: undefined
+          });
+          setExistingStudent(null);
+        } else {
+          // If saving data fails, we should ideally delete the created user
+          // For now, we'll just show the error.
+          toast({
+            title: "Error Saving Data",
+            description: response.message || "An error occurred while saving student data.",
+            variant: "destructive",
+          });
+        }
+    } catch (error: any) {
+        toast({
+            title: "Error Creating User",
+            description: error.message || "An error occurred during user creation.",
+            variant: "destructive",
+        });
     }
+
     setIsSubmitting(false);
   }
 

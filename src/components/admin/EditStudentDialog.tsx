@@ -97,7 +97,18 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
 
   async function onDelete() {
     setIsDeleting(true);
-    const response = await deleteStudent(student.rollNumber, student.email);
+    // The student object from props might not have uid if it's an older record.
+    // Ensure you handle cases where uid might be missing if that's possible.
+    if (!student.uid) {
+        toast({
+            title: "Error",
+            description: "Cannot delete student because their User ID is missing.",
+            variant: "destructive",
+        });
+        setIsDeleting(false);
+        return;
+    }
+    const response = await deleteStudent(student.rollNumber, student.uid);
      if (response.success) {
       toast({
         title: "Success",
@@ -169,9 +180,9 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                         name="email"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Student's Google Email</FormLabel>
+                            <FormLabel>Student's Login Email</FormLabel>
                             <FormControl>
-                            <Input type="email" placeholder="student.email@gmail.com" {...field} className="glowing-shadow-sm" />
+                            <Input type="email" placeholder="student.email@example.com" {...field} className="glowing-shadow-sm" readOnly />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
