@@ -39,9 +39,12 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     .filter((student) =>
       classFilter === "all" ? true : student.class === Number(classFilter)
     )
-    .filter((student) =>
-      streamFilter === "all" || streamFilter === "Regular Batch" ? true : student.stream === streamFilter
-    );
+    .filter((student) => {
+      if (streamFilter === 'all' || streamFilter === 'Regular Batch') {
+        return true;
+      }
+      return student.stream === streamFilter;
+    });
 
   return (
     <div className="space-y-4">
