@@ -8,7 +8,7 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA1_r1Fc7ESybCMvGH1w-CI76emCtpP_RI",
+  apiKey: "AIzaSyA1_rlFc7ESybCMvGHlw-CI76emCtpP_RI",
   authDomain: "pheniox-academy-student-result.firebaseapp.com",
   projectId: "pheniox-academy-student-result",
   storageBucket: "pheniox-academy-student-result.firebasestorage.app",
