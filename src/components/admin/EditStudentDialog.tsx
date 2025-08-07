@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -40,7 +41,7 @@ import type { Student } from "@/lib/student-types";
 const formSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfTest: z.string().min(1, "Date of Test is required"),
+  dateOfBirth: z.string().min(1, "Date of Birth is required"),
   email: z.string().email("A valid email is required for student login."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
@@ -64,7 +65,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
     defaultValues: {
       studentName: student.studentName,
       parentsName: student.parentsName,
-      dateOfTest: student.dateOfTest,
+      dateOfBirth: student.dateOfBirth,
       email: student.email,
       class: student.class,
       stream: student.stream,
@@ -150,10 +151,10 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                     />
                     <FormField
                         control={form.control}
-                        name="dateOfTest"
+                        name="dateOfBirth"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Date of Registration</FormLabel>
+                            <FormLabel>D.O.B.</FormLabel>
                             <FormControl>
                             <Input type="date" {...field} className="glowing-shadow-sm" />
                             </FormControl>

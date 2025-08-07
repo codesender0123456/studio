@@ -1,8 +1,9 @@
+
 export type Student = {
   rollNumber: string;
   studentName: string;
   parentsName: string;
-  dateOfTest: string; // YYYY-MM-DD
+  dateOfBirth: string; // YYYY-MM-DD
   email: string;
   class: 11 | 12;
   stream: "JEE" | "NEET" | "MHT-CET" | "Regular Batch";

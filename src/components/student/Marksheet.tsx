@@ -1,3 +1,4 @@
+
 "use client";
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
@@ -42,7 +43,7 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
     setIsDownloading(false);
   };
   
-  const formattedDate = student.dateOfTest.split('-').reverse().join('-');
+  const formattedDate = student.dateOfBirth.split('-').reverse().join('-');
 
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
@@ -62,7 +63,7 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
             <div><span className="font-semibold text-muted-foreground">Student:</span> {student.studentName}</div>
             <div><span className="font-semibold text-muted-foreground">Roll No:</span> {student.rollNumber}</div>
             <div><span className="font-semibold text-muted-foreground">Parent:</span> {student.parentsName}</div>
-            <div><span className="font-semibold text-muted-foreground">Date of Registration:</span> {formattedDate}</div>
+            <div><span className="font-semibold text-muted-foreground">Date of Birth:</span> {formattedDate}</div>
             <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Class:</span> <Badge variant="outline" className="text-xs">{student.class}th</Badge></div>
             <div className="col-span-2"><span className="font-semibold text-muted-foreground">Batch:</span> <Badge variant="outline" className="text-xs">{student.batch}</Badge></div>

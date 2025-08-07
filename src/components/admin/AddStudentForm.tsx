@@ -35,8 +35,8 @@ const formSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfTest: z.string().refine((date) => new Date(date) <= new Date(), {
-    message: "Date of registration cannot be in the future.",
+  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
+    message: "Date of birth cannot be in the future.",
   }),
   email: z.string().email("A valid email is required for student login."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
@@ -57,7 +57,7 @@ export default function AddStudentForm() {
       rollNumber: "",
       studentName: "",
       parentsName: "",
-      dateOfTest: new Date().toISOString().split('T')[0], // Set default to today
+      dateOfBirth: new Date().toISOString().split('T')[0], // Set default to today
       email: "",
       batch: "",
     },
@@ -112,7 +112,7 @@ export default function AddStudentForm() {
         rollNumber: "",
         studentName: "",
         parentsName: "",
-        dateOfTest: new Date().toISOString().split('T')[0],
+        dateOfBirth: new Date().toISOString().split('T')[0],
         email: "",
         batch: "",
         class: undefined,
@@ -198,10 +198,10 @@ export default function AddStudentForm() {
           />
            <FormField
             control={form.control}
-            name="dateOfTest"
+            name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Registration</FormLabel>
+                <FormLabel>D.O.B.</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="glowing-shadow-sm" />
                 </FormControl>
