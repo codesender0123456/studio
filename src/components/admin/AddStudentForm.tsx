@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, AlertTriangle } from "lucide-react";
 import debounce from "lodash.debounce";
-import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,22 +30,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { Student } from "@/lib/student-types";
+import { addStudentFormSchema } from "@/lib/schemas";
 
 
-const formSchema = z.object({
-  rollNumber: z.string().min(1, "Roll Number is required"),
-  studentName: z.string().min(1, "Student Name is required"),
-  parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
-    message: "Date of birth cannot be in the future.",
-  }),
-  email: z.string().email("A valid email is required for student login."),
-  class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
-  batch: z.string().min(1, "Batch is required"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof addStudentFormSchema>;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +41,7 @@ export default function AddStudentForm() {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(addStudentFormSchema),
     defaultValues: {
       rollNumber: "",
       studentName: "",
@@ -101,18 +89,13 @@ export default function AddStudentForm() {
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     
-    // This is a placeholder password. The user will be created with this,
-    // but they will use Google Sign-In, so they'll never need it.
-    // A more robust solution might involve sending a password reset email immediately.
     const tempPassword = `password${Date.now()}`;
     const clientAuth = getAuth();
 
     try {
-        // Step 1: Create user on the client-side using client SDK
         const userCredential = await createUserWithEmailAndPassword(clientAuth, values.email, tempPassword);
         const user = userCredential.user;
 
-        // Step 2: Call server action to save student data in Firestore
         const response = await saveStudentData({ ...values, uid: user.uid });
 
         if (response.success) {
@@ -132,8 +115,6 @@ export default function AddStudentForm() {
           });
           setExistingStudent(null);
         } else {
-          // If saving data fails, we should ideally delete the created user
-          // For now, we'll just show the error.
           toast({
             title: "Error Saving Data",
             description: response.message || "An error occurred while saving student data.",

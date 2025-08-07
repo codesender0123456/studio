@@ -5,6 +5,8 @@ import { z } from "zod";
 import * as admin from "firebase-admin";
 import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { addStudentFormSchema, updateStudentSchema } from "@/lib/schemas";
+
 
 // --- Firebase Admin SDK Initialization ---
 function getAdminApp() {
@@ -41,28 +43,6 @@ function getFirestore() {
     throw error;
   }
 }
-
-
-// --- Schemas ---
-
-const studentSchema = z.object({
-  rollNumber: z.string().min(1, "Roll Number is required"),
-  studentName: z.string().min(1, "Student Name is required"),
-  parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
-    message: "Date of birth cannot be in the future.",
-  }),
-  email: z.string().email("Invalid email address"),
-  class: z.coerce.number().min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
-  batch: z.string().min(1, "Batch is required"),
-});
-
-// For client-side form validation
-export const addStudentFormSchema = studentSchema.extend({
-  uid: z.string().min(1, "User ID is required."),
-});
-const updateStudentSchema = studentSchema.omit({ rollNumber: true });
 
 // --- Server Actions ---
 

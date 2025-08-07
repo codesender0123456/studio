@@ -36,21 +36,10 @@ import {
 } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import type { Student } from "@/lib/student-types";
+import { updateStudentSchema } from "@/lib/schemas";
 
 
-const formSchema = z.object({
-  studentName: z.string().min(1, "Student Name is required"),
-  parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
-    message: "Date of birth cannot be in the future.",
-  }),
-  email: z.string().email("A valid email is required for student login."),
-  class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
-  batch: z.string().min(1, "Batch is required"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof updateStudentSchema>;
 
 type EditStudentDialogProps = {
     student: Student;
@@ -63,7 +52,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(updateStudentSchema),
     defaultValues: {
       studentName: student.studentName,
       parentsName: student.parentsName,
@@ -97,8 +86,6 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
 
   async function onDelete() {
     setIsDeleting(true);
-    // The student object from props might not have uid if it's an older record.
-    // Ensure you handle cases where uid might be missing if that's possible.
     if (!student.uid) {
         toast({
             title: "Error",
