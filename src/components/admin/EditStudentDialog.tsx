@@ -119,7 +119,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
         </DialogHeader>
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onUpdate)} className="space-y-6 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                         control={form.control}
                         name="studentName"
@@ -160,7 +160,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                         )}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <FormField
                         control={form.control}
                         name="class"

@@ -95,12 +95,12 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
           <Table>
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
-                <TableHead>Roll No.</TableHead>
+                <TableHead className="w-[100px]">Roll No.</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Parent's Name</TableHead>
-                <TableHead>Class</TableHead>
+                <TableHead className="w-[80px]">Class</TableHead>
                 <TableHead>Stream</TableHead>
-                <TableHead>Batch</TableHead>
+                <TableHead className="w-[120px]">Batch</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
