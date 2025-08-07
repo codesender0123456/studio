@@ -9,10 +9,12 @@ const studentSchema = z.object({
     message: "Date of birth cannot be in the future.",
   }),
   email: z.string().email("Invalid email address"),
-  class: z.coerce.number().min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
+  class: z.coerce.number().min(11, "Class is required.").max(12),
+  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Stream is required." }),
   batch: z.string().min(1, "Batch is required"),
 });
+
+export const addStudentFormClientSchema = studentSchema;
 
 export const addStudentFormSchema = studentSchema.extend({
   uid: z.string().min(1, "User ID is required."),

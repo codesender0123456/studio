@@ -30,10 +30,10 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { Student } from "@/lib/student-types";
-import { addStudentFormSchema } from "@/lib/schemas";
+import { addStudentFormClientSchema } from "@/lib/schemas";
 
 
-type FormValues = z.infer<typeof addStudentFormSchema>;
+type FormValues = z.infer<typeof addStudentFormClientSchema>;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +41,7 @@ export default function AddStudentForm() {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(addStudentFormSchema),
+    resolver: zodResolver(addStudentFormClientSchema),
     defaultValues: {
       rollNumber: "",
       studentName: "",
