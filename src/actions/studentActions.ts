@@ -107,6 +107,88 @@ export async function saveMarksheetData(rollNumber: string, formData: z.infer<ty
     }
 }
 
+export async function updateMarksheet(rollNumber: string, marksheetId: string, formData: z.infer<typeof marksheetSchema>) {
+    const validatedData = marksheetSchema.safeParse(formData);
+
+    if(!validatedData.success) {
+        return {
+            success: false,
+            message: "Invalid data provided.",
+            errors: validatedData.error.flatten().fieldErrors,
+        };
+    }
+
+    try {
+        const studentRef = doc(db, "students", rollNumber.toLowerCase());
+        const marksheetRef = doc(studentRef, "marks", marksheetId);
+        
+        const { ...marksheetData } = validatedData.data;
+
+        let calculatedTotal = 0;
+        let calculatedMaxTotal = 0;
+
+        const subjects = [
+            marksheetData.physics, 
+            marksheetData.chemistry, 
+            marksheetData.maths, 
+            marksheetData.botany, 
+            marksheetData.zoology
+        ];
+
+        subjects.forEach(subject => {
+            if(subject && subject.marks !== null && subject.maxMarks !== null && subject.marks !== undefined && subject.maxMarks !== undefined) {
+                calculatedTotal += subject.marks;
+                calculatedMaxTotal += subject.maxMarks;
+            }
+        })
+
+        const dataToUpdate = {
+            ...marksheetData,
+            total: calculatedTotal,
+            totalMax: calculatedMaxTotal,
+        }
+        
+        await updateDoc(marksheetRef, dataToUpdate);
+
+        return {
+            success: true,
+            message: "Successfully updated marksheet data.",
+        }
+
+    } catch (error: any) {
+        console.error("Error updating marksheet: ", error);
+        return {
+            success: false,
+            message: error.message || "An unknown error occurred while communicating with the database.",
+        }
+    }
+}
+
+
+export async function deleteMarksheet(rollNumber: string, marksheetId: string) {
+  if (!rollNumber || !marksheetId) {
+    return { success: false, message: "Roll Number and Marksheet ID are required." };
+  }
+  
+  try {
+    const studentRef = doc(db, "students", rollNumber.toLowerCase());
+    const marksheetRef = doc(studentRef, "marks", marksheetId);
+    await deleteDoc(marksheetRef);
+
+    return {
+      success: true,
+      message: "Successfully deleted marksheet record.",
+    };
+  } catch (error: any) {
+    console.error("Error deleting marksheet: ", error);
+    return {
+      success: false,
+      message: error.message || "An unknown error occurred.",
+    };
+  }
+}
+
+
 
 export async function getStudentByEmail(email: string) {
     if (!email) {
@@ -207,3 +289,4 @@ export async function getLoginAttempts() {
         return { success: false, data: null, message: "An error occurred while fetching login attempts." };
     }
 }
+

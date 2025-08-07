@@ -27,6 +27,7 @@ import { updateStudentSchema } from "@/lib/schemas";
 import EditStudentForm from "./forms/EditStudentForm";
 import AddMarksheetForm from "./forms/AddMarksheetForm";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
+import ViewResultsTab from "./tabs/ViewResultsTab";
 
 
 type FormValues = z.infer<typeof updateStudentSchema>;
@@ -66,6 +67,8 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
     }
     
     try {
+        // Here you might want to delete subcollections first if you have any
+        // For now, we just delete the student doc
         const response = await deleteStudent(student.rollNumber);
         
         if (!response.success) {
@@ -76,7 +79,11 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
 
         toast({ title: "Success", description: "Student record deleted. Now attempting to delete login account..."});
 
+        // You MUST handle re-authentication for this to work in production
+        // This is a sensitive operation and Firebase requires a recent sign-in
         if (student.uid) {
+             // This part is tricky and requires re-authentication, which is complex.
+             // For this app, we'll recommend manual deletion from the console.
              toast({
                 title: "Manual Action Required",
                 description: `Student record for ${student.rollNumber} deleted. Please manually delete the user with email ${student.email} from the Firebase Authentication console.`,
@@ -87,6 +94,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
       onClose();
     } catch (error: any) {
         let errorMessage = "An unknown error occurred during deletion.";
+        // Check for specific auth errors if you implement user deletion
         if (error.code === 'auth/requires-recent-login') {
             errorMessage = "This is a sensitive operation. Please sign out and sign back in to the admin panel before trying again.";
         }
@@ -110,6 +118,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                 <TabsList className="glowing-shadow-sm">
                     <TabsTrigger value="edit-details">Edit Details</TabsTrigger>
                     <TabsTrigger value="add-marksheet">Add Marksheet</TabsTrigger>
+                    <TabsTrigger value="view-results">View Results</TabsTrigger>
                 </TabsList>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -122,7 +131,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                         <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action will permanently delete the student's database record. You will need to manually delete their login account from the Firebase Console. This cannot be undone.
+                            This action will permanently delete the student's database record, including all associated marksheet data. You will need to manually delete their login account from the Firebase Console. This cannot be undone.
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -137,6 +146,9 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
             </TabsContent>
             <TabsContent value="add-marksheet">
                 <AddMarksheetForm student={student} />
+            </TabsContent>
+            <TabsContent value="view-results">
+                <ViewResultsTab student={student} />
             </TabsContent>
         </Tabs>
     </DialogContent>
