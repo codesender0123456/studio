@@ -70,7 +70,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div className="flex items-center justify-center space-x-4">
                 <Icons.logo className="h-10 w-10 text-primary" />
                 <div>
-                    <h2 className="text-2xl font-bold font-headline text-glow">ResultVerse Institute</h2>
+                    <h2 className="text-2xl font-bold font-headline text-glow">Phoenix Science Academy</h2>
                 </div>
             </div>
         </CardHeader>

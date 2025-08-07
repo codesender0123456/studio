@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import ParticleBackground from '@/components/common/ParticleBackground';
 
 export const metadata: Metadata = {
-  title: 'ResultVerse',
+  title: 'Phoenix Science Academy',
   description: 'A modern, professional Result Management Application.',
 };
 
