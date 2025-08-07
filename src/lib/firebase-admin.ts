@@ -12,12 +12,10 @@ interface AdminServices {
 let adminServices: AdminServices | null = null;
 
 function getAdminServices(): AdminServices {
-    // If we've already initialized, just return the cached services.
     if (adminServices) {
         return adminServices;
     }
 
-    // If no apps are initialized, initialize a new one.
     if (admin.apps.length === 0) {
         try {
             const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
@@ -37,10 +35,8 @@ function getAdminServices(): AdminServices {
         }
     }
     
-    // Get the (now initialized) default app.
     const app = admin.app();
 
-    // Cache the services and return them.
     adminServices = {
         auth: app.auth(),
         firestore: app.firestore(),
@@ -49,6 +45,5 @@ function getAdminServices(): AdminServices {
     return adminServices;
 }
 
-// These are functions that components/actions can call to get the services.
 export const getAuth = () => getAdminServices().auth;
 export const getFirestore = () => getAdminServices().firestore;
