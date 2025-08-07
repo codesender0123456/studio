@@ -2,9 +2,51 @@
 "use server";
 
 import { z } from "zod";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
-import { getAuth, getFirestore } from "@/lib/firebase-admin";
+import * as admin from "firebase-admin";
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where, getFirestore as getClientFirestore } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+
+// --- Firebase Admin SDK Initialization ---
+// This logic is moved here to ensure it runs in the correct server action context.
+
+let adminApp: admin.app.App;
+
+function getAdminApp() {
+  if (adminApp) {
+    return adminApp;
+  }
+
+  const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!serviceAccountEnv) {
+    throw new Error("The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set.");
+  }
+
+  try {
+    const serviceAccount = JSON.parse(serviceAccountEnv);
+    
+    if (admin.apps.length > 0) {
+      adminApp = admin.app();
+    } else {
+      adminApp = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+    }
+    return adminApp;
+  } catch (error: any) {
+    console.error("Firebase Admin SDK initialization error:", error);
+    throw new Error(`Firebase Admin SDK initialization failed: ${error.message}`);
+  }
+}
+
+function getAuth() {
+  return getAdminApp().auth();
+}
+
+function getFirestore() {
+  return getAdminApp().firestore();
+}
+
+// --- Schemas ---
 
 const studentSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
@@ -19,6 +61,8 @@ const studentSchema = z.object({
 
 const addStudentFormSchema = studentSchema;
 const updateStudentSchema = studentSchema.omit({ rollNumber: true });
+
+// --- Server Actions ---
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
   try {
@@ -36,31 +80,25 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     const { email, ...studentData } = validatedData.data;
 
     try {
-      // Check if a user with that email already exists in Firebase Auth
       await authAdmin.getUserByEmail(email);
-      // If it doesn't throw, a user exists.
       return {
         success: false,
-        message: "A user with this email address already exists in the authentication system. Please use a different email.",
+        message: "A user with this email address already exists. Please use a different email.",
       };
     } catch (error: any) {
-      // "user-not-found" is the expected error if the email is available.
       if (error.code !== 'auth/user-not-found') {
-        // For any other auth-related error, return a message.
         console.error("Error checking user:", error);
         return { success: false, message: error.message || "An unexpected error occurred while checking user existence." };
       }
     }
     
-    // 1. Create Firebase Auth user (no password)
     const userRecord = await authAdmin.createUser({
       email: email,
       displayName: studentData.studentName,
     });
     
-    // 2. Save student data to Firestore
     const studentRef = doc(db, "students", studentData.rollNumber.toLowerCase());
-    await setDoc(studentRef, { ...studentData, email });
+    await setDoc(studentRef, { ...studentData, email, uid: userRecord.uid });
     
     return {
       success: true,
@@ -132,11 +170,9 @@ export async function deleteStudent(rollNumber: string, email: string) {
   try {
     const authAdmin = getAuth();
 
-    // 1. Delete from Firestore
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await deleteDoc(studentRef);
 
-    // 2. Delete from Firebase Auth
     const user = await authAdmin.getUserByEmail(email);
     await authAdmin.deleteUser(user.uid);
 
@@ -155,15 +191,15 @@ export async function deleteStudent(rollNumber: string, email: string) {
 
 export async function clearLoginAttempts() {
   try {
-    const firestore = getFirestore();
-    const logsCollection = collection(firestore, "login_attempts");
+    const firestoreAdmin = getFirestore();
+    const logsCollection = collection(firestoreAdmin, "login_attempts");
     const logsSnapshot = await getDocs(logsCollection);
 
     if (logsSnapshot.empty) {
       return { success: true, message: "No logs to clear." };
     }
     
-    const batch = writeBatch(firestore);
+    const batch = writeBatch(firestoreAdmin);
     logsSnapshot.docs.forEach((doc) => {
       batch.delete(doc.ref);
     });
