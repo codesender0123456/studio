@@ -62,6 +62,8 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
     .filter(([_, value]) => value !== null);
   
   const maxMarks = subjectsToDisplay.length * 100;
+  
+  const formattedDate = student.dateOfTest.split('-').reverse().join('-');
 
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
@@ -80,7 +82,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div><span className="font-semibold text-muted-foreground">Student:</span> {student.studentName}</div>
             <div><span className="font-semibold text-muted-foreground">Roll No:</span> {student.rollNumber}</div>
             <div><span className="font-semibold text-muted-foreground">Parent:</span> {student.parentsName}</div>
-            <div><span className="font-semibold text-muted-foreground">Date of Test:</span> {student.dateOfTest}</div>
+            <div><span className="font-semibold text-muted-foreground">Date of Test:</span> {formattedDate}</div>
             <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Class:</span> <Badge variant="outline" className="text-xs">{student.class}th</Badge></div>
           </div>
