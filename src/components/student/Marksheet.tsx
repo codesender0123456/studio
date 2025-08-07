@@ -135,8 +135,8 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
       <div ref={marksheetRef} className="p-6 bg-background/50">
-        <CardHeader className="p-0 mb-4">
-            <div className="flex items-center justify-center space-x-4">
+        <CardHeader className="p-0 mb-4 text-center">
+            <div className="flex flex-col items-center justify-center space-y-2">
                 <Icons.logo className="h-20 w-20 text-primary" />
                 <div>
                     <h2 className="text-2xl font-bold font-headline text-glow whitespace-nowrap">Phoenix Science Academy</h2>
