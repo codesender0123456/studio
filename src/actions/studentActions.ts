@@ -58,11 +58,9 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
-    let message = "An error occurred while communicating with the database.";
+    let message = error.message || "An unknown error occurred.";
     if (error.code === 'auth/email-already-exists') {
-        message = "A student with this email address already exists.";
-    } else if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
-        message = "Server configuration error. Could not connect to Firebase services."
+        message = "A student with this email address already exists in the authentication system.";
     }
     return {
       success: false,
@@ -111,11 +109,11 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
       success: true,
       message: `Successfully updated student ${validatedData.data.studentName}.`,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating document: ", error);
     return {
       success: false,
-      message: "An error occurred while communicating with the database.",
+      message: error.message || "An unknown error occurred.",
     };
   }
 }
@@ -137,11 +135,7 @@ export async function resetStudentPassword(uid: string, formData: z.infer<typeof
         return { success: true, message: "Password updated successfully." };
     } catch (error: any) {
         console.error("Error resetting password:", error);
-        let message = "Failed to reset password.";
-        if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
-            message = "Server configuration error. Could not connect to Firebase services."
-        }
-        return { success: false, message };
+        return { success: false, message: error.message || "An unknown error occurred." };
     }
 }
 
@@ -168,13 +162,9 @@ export async function deleteStudent(rollNumber: string, email: string) {
     };
   } catch (error: any) {
     console.error("Error deleting document: ", error);
-    let message = "An error occurred while communicating with the database.";
-     if (error.message && error.message.includes("Firebase Admin SDK initialization failed")) {
-        message = "Server configuration error. Could not connect to Firebase services."
-    }
     return {
       success: false,
-      message: message,
+      message: error.message || "An unknown error occurred.",
     };
   }
 }
@@ -196,8 +186,8 @@ export async function clearLoginAttempts() {
     await batch.commit();
     
     return { success: true, message: `Successfully cleared ${logsSnapshot.size} log(s).` };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error clearing login attempts: ", error);
-    return { success: false, message: "An error occurred while clearing logs." };
+    return { success: false, message: error.message || "An unknown error occurred." };
   }
 }
