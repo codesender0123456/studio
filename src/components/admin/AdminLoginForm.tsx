@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Loader2 } from "lucide-react";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -41,6 +42,18 @@ export default function AdminLoginForm() {
       if (user.email && ADMIN_EMAILS.includes(user.email)) {
         toast({ title: "Success", description: "Welcome, Admin. You are now signed in." });
       } else {
+        // Log unauthorized attempt
+        if (user.email) {
+            try {
+                await addDoc(collection(db, "login_attempts"), {
+                    email: user.email,
+                    timestamp: serverTimestamp(),
+                    status: "failed",
+                });
+            } catch (logError) {
+                console.error("Failed to log unauthorized attempt:", logError);
+            }
+        }
         await auth.signOut();
         toast({
           title: "Authorization Error",

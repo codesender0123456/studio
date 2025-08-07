@@ -15,7 +15,7 @@ export default function AdminPage() {
 
   return (
     <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         <div className="text-center mb-8">
             <div className="flex justify-center items-center gap-4 mb-4">
                 <Icons.logo className="h-12 w-12 text-primary" />

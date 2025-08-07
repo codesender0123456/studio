@@ -22,3 +22,10 @@ export type MarksheetData = {
   total: number;
   result: "Pass" | "Fail";
 }
+
+export type LoginAttempt = {
+  id: string;
+  email: string;
+  timestamp: Date;
+  status: "failed";
+}
