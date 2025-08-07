@@ -6,7 +6,7 @@ const studentSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dob: z.string().min(1, "Date of Birth is required"),
+  dateOfTest: z.string().min(1, "Date of Test is required"),
   class: z.coerce.number().min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET"]),
   subjects: z.object({

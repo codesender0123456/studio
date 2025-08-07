@@ -80,7 +80,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div><span className="font-semibold text-muted-foreground">Student:</span> {student.studentName}</div>
             <div><span className="font-semibold text-muted-foreground">Roll No:</span> {student.rollNumber}</div>
             <div><span className="font-semibold text-muted-foreground">Parent:</span> {student.parentsName}</div>
-            <div><span className="font-semibold text-muted-foreground">D.O.B:</span> {student.dob}</div>
+            <div><span className="font-semibold text-muted-foreground">Date of Test:</span> {student.dateOfTest}</div>
             <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Class:</span> <Badge variant="outline" className="text-xs">{student.class}th</Badge></div>
           </div>

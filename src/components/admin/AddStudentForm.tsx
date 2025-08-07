@@ -32,7 +32,7 @@ const formSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dob: z.string().min(1, "Date of Birth is required"),
+  dateOfTest: z.string().min(1, "Date of Test is required"),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET"], { required_error: "Please select a stream."}),
   physics: z.coerce.number().min(0).max(100),
@@ -62,7 +62,7 @@ export default function AddStudentForm() {
       rollNumber: "",
       studentName: "",
       parentsName: "",
-      dob: "",
+      dateOfTest: "",
       physics: 0,
       chemistry: 0,
       maths: 0,
@@ -104,7 +104,7 @@ export default function AddStudentForm() {
         rollNumber: values.rollNumber,
         studentName: values.studentName,
         parentsName: values.parentsName,
-        dob: values.dob,
+        dateOfTest: values.dateOfTest,
         class: values.class,
         stream: values.stream,
         subjects, 
@@ -175,10 +175,10 @@ export default function AddStudentForm() {
           />
            <FormField
             control={form.control}
-            name="dob"
+            name="dateOfTest"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
+                <FormLabel>Date of Test</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="glowing-shadow-sm" />
                 </FormControl>
