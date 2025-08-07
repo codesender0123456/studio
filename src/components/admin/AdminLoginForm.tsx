@@ -31,9 +31,23 @@ export default function AdminLoginForm() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    // IMPORTANT: Replace this with the email of the authorized admin user.
+    const ADMIN_EMAIL = "your-admin-email@example.com";
+
     try {
-      await signInWithPopup(auth, provider);
-      toast({ title: "Success", description: "You are now signed in." });
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      if (user.email === ADMIN_EMAIL) {
+        toast({ title: "Success", description: "Welcome, Admin. You are now signed in." });
+      } else {
+        await auth.signOut();
+        toast({
+          title: "Authorization Error",
+          description: "This Google account is not authorized to access the admin panel.",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       console.error(error);
       toast({
