@@ -39,11 +39,21 @@ function getAdminApp() {
 }
 
 function getAuth() {
-  return getAdminApp().auth();
+  try {
+    return getAdminApp().auth();
+  } catch (error) {
+    console.error("Failed to get Firebase Auth instance:", error);
+    throw error;
+  }
 }
 
 function getFirestore() {
-  return getAdminApp().firestore();
+  try {
+    return getAdminApp().firestore();
+  } catch (error) {
+    console.error("Failed to get Firebase Firestore instance:", error);
+    throw error;
+  }
 }
 
 // --- Schemas ---
@@ -106,6 +116,13 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
+    // Provide a more specific error message if it's an initialization failure
+    if (error.message.includes("environment variable is not set")) {
+        return {
+            success: false,
+            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
+        };
+    }
     return {
       success: false,
       message: error.message || "An unknown error occurred while communicating with the database.",
@@ -182,6 +199,12 @@ export async function deleteStudent(rollNumber: string, email: string) {
     };
   } catch (error: any) {
     console.error("Error deleting document: ", error);
+    if (error.message.includes("environment variable is not set")) {
+        return {
+            success: false,
+            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
+        };
+    }
     return {
       success: false,
       message: error.message || "An unknown error occurred.",
@@ -209,6 +232,12 @@ export async function clearLoginAttempts() {
     return { success: true, message: `Successfully cleared ${logsSnapshot.size} log(s).` };
   } catch (error: any) {
     console.error("Error clearing login attempts: ", error);
+     if (error.message.includes("environment variable is not set")) {
+        return {
+            success: false,
+            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
+        };
+    }
     return { success: false, message: error.message || "An unknown error occurred." };
   }
 }
