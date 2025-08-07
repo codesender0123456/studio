@@ -2,18 +2,10 @@
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Download, Loader2, RefreshCw } from "lucide-react";
+import { Download, Loader2, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Student } from "@/lib/student-types";
@@ -22,9 +14,10 @@ import { Icons } from "@/components/common/Icons";
 type MarksheetProps = {
   student: Student;
   onReset: () => void;
+  isSigningOut: boolean;
 };
 
-export default function Marksheet({ student, onReset }: MarksheetProps) {
+export default function Marksheet({ student, onReset, isSigningOut }: MarksheetProps) {
   const marksheetRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -72,7 +65,8 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div><span className="font-semibold text-muted-foreground">Date of Registration:</span> {formattedDate}</div>
             <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Class:</span> <Badge variant="outline" className="text-xs">{student.class}th</Badge></div>
-            <div><span className="font-semibold text-muted-foreground">Batch:</span> <Badge variant="outline" className="text-xs">{student.batch}</Badge></div>
+            <div className="col-span-2"><span className="font-semibold text-muted-foreground">Batch:</span> <Badge variant="outline" className="text-xs">{student.batch}</Badge></div>
+            <div className="col-span-2"><span className="font-semibold text-muted-foreground">Email:</span> {student.email}</div>
           </div>
           
           <Separator className="my-4 bg-primary/20" />
@@ -84,9 +78,9 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
         </CardContent>
       </div>
       <CardFooter className="flex justify-between p-6">
-        <Button variant="ghost" onClick={onReset} className="glowing-shadow-sm">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Check Another
+        <Button variant="ghost" onClick={onReset} className="glowing-shadow-sm" disabled={isSigningOut}>
+          {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+          Sign Out
         </Button>
         <Button onClick={handleDownload} disabled={isDownloading} className="glowing-shadow">
           {isDownloading ? (

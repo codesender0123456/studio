@@ -3,6 +3,7 @@ export type Student = {
   studentName: string;
   parentsName: string;
   dateOfTest: string; // YYYY-MM-DD
+  email: string;
   class: 11 | 12;
   stream: "JEE" | "NEET" | "MHT-CET" | "Regular Batch";
   batch: string; // e.g., "2022-2024"

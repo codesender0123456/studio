@@ -3,78 +3,70 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { doc, getDoc, setDoc, getFirestore } from "firebase/firestore";
+import { ArrowRight, LogOut, Loader2 } from "lucide-react";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 
-import { db } from "@/lib/firebase";
+
+import { auth, db } from "@/lib/firebase";
 import type { Student } from "@/lib/student-types";
 import { Button } from "@/components/ui/button";
 import Marksheet from "@/components/student/Marksheet";
 import StudentLoginForm from "@/components/student/StudentLoginForm";
 import { Icons } from "@/components/common/Icons";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 export default function Home() {
+  const [user, authLoading, authError] = useAuthState(auth);
   const [studentData, setStudentData] = useState<Student | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [connectionStatus, setConnectionStatus] = useState("Checking connection...");
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
-    // Test Firestore connection
-    const testConnection = async () => {
-      try {
-        const testDocRef = doc(db, "internal", "connection-test");
-        await setDoc(testDocRef, { timestamp: new Date() });
-        const docSnap = await getDoc(testDocRef);
-        if (docSnap.exists()) {
-          setConnectionStatus("Connection to database successful!");
-          setError(null);
-        } else {
-          throw new Error("Test document not found after writing.");
+    const fetchStudentData = async () => {
+      if (user) {
+        setLoading(true);
+        setError(null);
+        try {
+          const studentsRef = collection(db, "students");
+          const q = query(studentsRef, where("email", "==", user.email));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            // Assuming one student per email
+            const studentDoc = querySnapshot.docs[0];
+            setStudentData(studentDoc.data() as Student);
+          } else {
+            setError("No student record found for this email address. Please contact the administration.");
+            // Sign out if no record found
+            await auth.signOut();
+          }
+        } catch (err) {
+          console.error(err);
+          setError("An error occurred while fetching your data.");
+        } finally {
+          setLoading(false);
         }
-      } catch (err: any) {
-        console.error("Firestore connection test failed:", err);
-        setConnectionStatus("Failed to connect to the database.");
-        setError(`Connection Error: Please ensure you have enabled Firestore in your Firebase project and check the browser console for more details.`);
+      } else {
+        setStudentData(null); // Clear data on sign out
       }
     };
-    testConnection();
-  }, []);
 
+    fetchStudentData();
+  }, [user]);
 
-  const handleSearch = async (rollNumber: string) => {
-    setLoading(true);
-    setError(null);
-    setStudentData(null);
-
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
     try {
-      const docRef = doc(db, "students", rollNumber.toLowerCase());
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setStudentData(docSnap.data() as Student);
-      } else {
-        setError("Invalid Roll Number. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("An error occurred while fetching data.");
+        await auth.signOut();
+    } catch (error) {
+        console.error("Error signing out: ", error);
+        setError("Could not sign you out. Please try again.");
     } finally {
-      setLoading(false);
+        setIsSigningOut(false);
     }
-  };
+  }
 
-  const handleReset = () => {
-    setStudentData(null);
-    setError(null);
-  };
 
   return (
     <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
@@ -89,28 +81,31 @@ export default function Home() {
             <p className="text-muted-foreground">Your digital gateway to academic results.</p>
         </div>
 
-        {studentData ? (
-          <Marksheet student={studentData} onReset={handleReset} />
+        {authLoading || loading ? (
+          <div className="flex justify-center items-center">
+            <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+            <p>Loading...</p>
+          </div>
+        ) : user && studentData ? (
+          <Marksheet student={studentData} onReset={handleSignOut} isSigningOut={isSigningOut}/>
         ) : (
-          <Card className="holographic-card glowing-shadow-sm">
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl text-center">Student Portal</CardTitle>
-              <CardDescription className="text-center">
-                {connectionStatus}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <StudentLoginForm onSearch={handleSearch} loading={loading} error={error} />
-            </CardContent>
-          </Card>
+          <StudentLoginForm error={error || authError?.message} />
         )}
       </div>
       <div className="absolute top-4 right-4">
-          <Button asChild variant="ghost" className="glowing-shadow-sm">
-            <Link href="/admin">
-              Admin Panel <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          { !user && !authLoading && (
+            <Button asChild variant="ghost" className="glowing-shadow-sm">
+              <Link href="/admin">
+                Admin Panel <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+          { user && (
+            <Button variant="ghost" className="glowing-shadow-sm" onClick={handleSignOut} disabled={isSigningOut}>
+              {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+              Sign Out
+            </Button>
+          )}
         </div>
     </main>
   );

@@ -39,7 +39,8 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     .filter(
       (student) =>
         student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase())
+        student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .filter((student) =>
       classFilter === "all" ? true : student.class === Number(classFilter)
@@ -61,7 +62,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
       <div className="space-y-4">
         <div className="flex flex-col md:flex-row gap-4">
           <Input
-              placeholder="Search by name or roll number..."
+              placeholder="Search by name, roll no, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm glowing-shadow-sm"
@@ -97,7 +98,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
               <TableRow>
                 <TableHead className="w-[100px]">Roll No.</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Parent's Name</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead className="w-[80px]">Class</TableHead>
                 <TableHead>Stream</TableHead>
                 <TableHead className="w-[120px]">Batch</TableHead>
@@ -110,7 +111,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                       <TableRow onClick={() => handleRowClick(student)} className="cursor-pointer">
                           <TableCell className="font-medium">{student.rollNumber}</TableCell>
                           <TableCell>{student.studentName}</TableCell>
-                          <TableCell>{student.parentsName}</TableCell>
+                          <TableCell>{student.email}</TableCell>
                           <TableCell>{student.class}th</TableCell>
                           <TableCell>
                               <Badge variant="secondary">{student.stream}</Badge>

@@ -41,6 +41,7 @@ const formSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
   dateOfTest: z.string().min(1, "Date of Test is required"),
+  email: z.string().email("A valid email is required for student login."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
   batch: z.string().min(1, "Batch is required"),
@@ -64,6 +65,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
       studentName: student.studentName,
       parentsName: student.parentsName,
       dateOfTest: student.dateOfTest,
+      email: student.email,
       class: student.class,
       stream: student.stream,
       batch: student.batch,
@@ -154,6 +156,19 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                             <FormLabel>Date of Registration</FormLabel>
                             <FormControl>
                             <Input type="date" {...field} className="glowing-shadow-sm" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Student's Google Email</FormLabel>
+                            <FormControl>
+                            <Input type="email" placeholder="student.email@gmail.com" {...field} className="glowing-shadow-sm" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
