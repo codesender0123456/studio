@@ -1,35 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
+import { auth } from "@/lib/firebase";
 import AdminLoginForm from "@/components/admin/AdminLoginForm";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { Icons } from "@/components/common/Icons";
 import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleLogin = (password: string) => {
-    setLoading(true);
-    setError(null);
-    setTimeout(() => {
-      if (password === "admin123") {
-        setIsLoggedIn(true);
-      } else {
-        setError("Incorrect password. Please try again.");
-      }
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+  const [user, loading, error] = useAuthState(auth);
 
   return (
     <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
@@ -44,11 +26,24 @@ export default function AdminPage() {
             <p className="text-muted-foreground">Administrator Panel</p>
         </div>
 
-        {isLoggedIn ? (
-          <AdminDashboard onLogout={handleLogout} />
-        ) : (
+        {loading && (
+            <div className="flex justify-center items-center">
+                <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                <p>Loading...</p>
+            </div>
+        )}
+
+        {error && (
+            <div className="text-center text-destructive">
+                <p>Error: {error.message}</p>
+            </div>
+        )}
+
+        {user && !loading && <AdminDashboard />}
+
+        {!user && !loading && (
           <>
-            <AdminLoginForm onLogin={handleLogin} loading={loading} error={error} />
+            <AdminLoginForm />
             <div className="text-center mt-6">
                 <Button asChild variant="ghost" className="glowing-shadow-sm">
                     <Link href="/">

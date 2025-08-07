@@ -1,25 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { collection, onSnapshot, query } from "firebase/firestore";
-import { ArrowLeft } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import type { Student } from "@/lib/student-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AddStudentForm from "./AddStudentForm";
 import StudentsTable from "./StudentsTable";
+import { useToast } from "@/hooks/use-toast";
 
-type AdminDashboardProps = {
-  onLogout: () => void;
-};
 
-export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
+export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const q = query(collection(db, "students"));
@@ -38,6 +37,19 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     return () => unsubscribe();
   }, []);
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+        await auth.signOut();
+        toast({ title: "Success", description: "You have been signed out." });
+    } catch (error) {
+        console.error("Error signing out: ", error);
+        toast({ title: "Error", description: "Could not sign you out. Please try again.", variant: "destructive" });
+    } finally {
+        setIsSigningOut(false);
+    }
+  }
+
   return (
     <Card className="holographic-card glowing-shadow w-full">
       <CardContent className="p-6">
@@ -47,11 +59,9 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <TabsTrigger value="view-students">View All Students</TabsTrigger>
               <TabsTrigger value="add-student">Add New Student</TabsTrigger>
             </TabsList>
-            <Button asChild variant="ghost" className="glowing-shadow-sm">
-              <Link href="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Portal
-              </Link>
+            <Button variant="ghost" className="glowing-shadow-sm" onClick={handleSignOut} disabled={isSigningOut}>
+                {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+                Sign Out
             </Button>
           </div>
           <TabsContent value="view-students">
