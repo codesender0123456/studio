@@ -72,7 +72,7 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
 
 export async function getStudentByEmail(email: string) {
     if (!email) {
-        return { success: false, data: null };
+        return { success: false, data: null, message: "Email is required." };
     }
     try {
         const studentsRef = collection(db, "students");
@@ -81,13 +81,13 @@ export async function getStudentByEmail(email: string) {
 
         if (!querySnapshot.empty) {
             const studentDoc = querySnapshot.docs[0];
-            return { success: true, data: studentDoc.data() };
+            return { success: true, data: { id: studentDoc.id, ...studentDoc.data()} };
         } else {
             return { success: true, data: null };
         }
     } catch (error) {
         console.error("Error fetching student by email: ", error);
-        return { success: false, data: null };
+        return { success: false, data: null, message: "An error occurred while fetching student data." };
     }
 }
 
@@ -113,7 +113,7 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
     
     return {
       success: true,
-      message: `Successfully updated student ${validatedData.data.studentName}.`,
+message: `Successfully updated student ${validatedData.data.studentName}.`,
     };
   } catch (error) {
     console.error("Error updating document: ", error);
