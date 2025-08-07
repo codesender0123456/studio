@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
 
-import type { Student } from "@/lib/mock-data";
-import { students } from "@/lib/mock-data";
+import { db } from "@/lib/firebase";
+import type { Student } from "@/lib/student-types";
 import { Button } from "@/components/ui/button";
 import Marksheet from "@/components/student/Marksheet";
 import StudentLoginForm from "@/components/student/StudentLoginForm";
@@ -23,22 +24,26 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSearch = (rollNumber: string) => {
+  const handleSearch = async (rollNumber: string) => {
     setLoading(true);
     setError(null);
     setStudentData(null);
 
-    setTimeout(() => {
-      const foundStudent = students.find(
-        (s) => s.rollNumber.toLowerCase() === rollNumber.toLowerCase()
-      );
-      if (foundStudent) {
-        setStudentData(foundStudent);
+    try {
+      const docRef = doc(db, "students", rollNumber.toLowerCase());
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setStudentData(docSnap.data() as Student);
       } else {
         setError("Invalid Roll Number. Please try again.");
       }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred while fetching data.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleReset = () => {

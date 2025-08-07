@@ -1,6 +1,8 @@
 "use server";
 
 import { z } from "zod";
+import { doc, setDoc } from "firebase/firestore"; 
+import { db } from "@/lib/firebase";
 
 const studentSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
@@ -32,40 +34,17 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
     };
   }
 
-  const SCRIPT_URL = process.env.GOOGLE_SHEET_SCRIPT_URL;
-
-  if (!SCRIPT_URL) {
-    console.error("Google Sheet script URL is not defined in environment variables.");
-    return {
-      success: false,
-      message: "Server configuration error: Script URL is missing.",
-    };
-  }
-
   try {
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(validatedData.data),
-    });
-
-    const result = await response.json();
-
-    if (result.status === 'success') {
-      return {
-        success: true,
-        message: `Successfully added student ${validatedData.data.studentName}.`,
-      };
-    } else {
-      return {
-        success: false,
-        message: result.message || "An unknown error occurred while adding the student.",
-      };
-    }
+    // Use rollNumber as the document ID
+    const studentRef = doc(db, "students", validatedData.data.rollNumber);
+    await setDoc(studentRef, validatedData.data);
+    
+    return {
+      success: true,
+      message: `Successfully added student ${validatedData.data.studentName}.`,
+    };
   } catch (error) {
-    console.error("Error submitting to Google Sheet:", error);
+    console.error("Error adding document: ", error);
     return {
       success: false,
       message: "An error occurred while communicating with the database.",

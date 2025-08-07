@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import type { Student } from "@/lib/mock-data";
+import type { Student } from "@/lib/student-types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,

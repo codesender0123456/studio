@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { Student } from "@/lib/mock-data";
+import type { Student } from "@/lib/student-types";
 import { Icons } from "@/components/common/Icons";
 import { cn } from "@/lib/utils";
 
