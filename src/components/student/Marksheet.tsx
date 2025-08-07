@@ -71,7 +71,6 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
                 <Icons.logo className="h-10 w-10 text-primary" />
                 <div>
                     <h2 className="text-2xl font-bold font-headline text-glow">ResultVerse Institute</h2>
-                    <p className="text-sm text-muted-foreground">Digital Statement of Marks - 2024</p>
                 </div>
             </div>
         </CardHeader>
