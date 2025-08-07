@@ -34,6 +34,8 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
 
   const isJeeStudent = student.stream === "JEE";
   const isNeetStudent = student.stream === "NEET";
+  const isRegularOrCet = student.stream === "Regular Batch" || student.stream === "MHT-CET";
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(marksheetSchema),
@@ -42,9 +44,9 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
         dateOfTest: new Date().toISOString().split('T')[0],
         physics: 0,
         chemistry: 0,
-        maths: isJeeStudent ? 0 : null,
-        botany: isNeetStudent ? 0 : null,
-        zoology: isNeetStudent ? 0 : null,
+        maths: isJeeStudent || isRegularOrCet ? 0 : null,
+        botany: isNeetStudent || isRegularOrCet ? 0 : null,
+        zoology: isNeetStudent || isRegularOrCet ? 0 : null,
     },
   });
 
@@ -100,7 +102,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
               )}
             />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="physics"
@@ -127,7 +129,9 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
               </FormItem>
             )}
           />
-          { isJeeStudent && (
+        </div>
+        
+        {(isJeeStudent || isRegularOrCet) && (
              <FormField
                 control={form.control}
                 name="maths"
@@ -148,8 +152,8 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 )}
             />
           )}
-        </div>
-        { isNeetStudent && (
+
+        {(isNeetStudent || isRegularOrCet) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                     control={form.control}

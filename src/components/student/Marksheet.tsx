@@ -51,7 +51,15 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
     const isNeet = marksheet.botany !== null && marksheet.zoology !== null;
     const isJee = marksheet.maths !== null;
 
-    const totalMarks = 180 + 180 + (isJee ? 120 : (isNeet ? 180 + 180 : 0));
+    let totalMarks = 0;
+    if (marksheet.physics) totalMarks += 180;
+    if (marksheet.chemistry) totalMarks += 180;
+    if (isJee) totalMarks += 120;
+    if (isNeet) {
+        if (marksheet.botany) totalMarks += 180;
+        if (marksheet.zoology) totalMarks += 180;
+    }
+
 
     return (
         <div className="text-sm">
