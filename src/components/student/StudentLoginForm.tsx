@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -6,8 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
-import { auth } from "@/lib/firebase";
+
+import { auth, db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -33,7 +36,7 @@ type StudentLoginFormProps = {
 };
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+  rollNumber: z.string().min(1, "Please enter your roll number."),
   password: z.string().min(1, "Password is required."),
 });
 
@@ -69,7 +72,7 @@ export default function StudentLoginForm({ error }: StudentLoginFormProps) {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      rollNumber: "",
       password: "",
     },
   });
@@ -91,15 +94,35 @@ export default function StudentLoginForm({ error }: StudentLoginFormProps) {
     }
   };
 
-  const handleEmailPasswordSignIn = async (values: LoginFormValues) => {
+  const handleRollNumberSignIn = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      // 1. Find the student document by roll number to get their email
+      const studentsRef = collection(db, "students");
+      const q = query(studentsRef, where("rollNumber", "==", values.rollNumber.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        throw new Error("No student found with that roll number.");
+      }
+
+      const studentDoc = querySnapshot.docs[0];
+      const studentEmail = studentDoc.data().email;
+
+      if (!studentEmail) {
+        throw new Error("Student record is missing an email. Please contact administration.");
+      }
+
+      // 2. Sign in with the fetched email and provided password
+      await signInWithEmailAndPassword(auth, studentEmail, values.password);
+
     } catch (error: any) {
       console.error(error);
       let description = "An error occurred during sign-in.";
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        description = "Invalid email or password. Please try again.";
+        description = "Invalid roll number or password. Please try again.";
+      } else {
+        description = error.message;
       }
       toast({
         title: "Authentication Error",
@@ -128,19 +151,18 @@ export default function StudentLoginForm({ error }: StudentLoginFormProps) {
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleEmailPasswordSignIn)}
+            onSubmit={form.handleSubmit(handleRollNumberSignIn)}
             className="space-y-4"
           >
             <FormField
               control={form.control}
-              name="email"
+              name="rollNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Roll Number</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="your.email@example.com"
+                      placeholder="e.g., 2024001"
                       {...field}
                       className="glowing-shadow-sm"
                     />
@@ -173,7 +195,7 @@ export default function StudentLoginForm({ error }: StudentLoginFormProps) {
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in with Email
+              Sign in
             </Button>
           </form>
         </Form>
