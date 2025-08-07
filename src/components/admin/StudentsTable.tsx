@@ -43,6 +43,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
               <TableHead>Roll No.</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Parent's Name</TableHead>
+              <TableHead>Stream</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="text-center">Result</TableHead>
             </TableRow>
@@ -53,6 +54,9 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                 <TableCell className="font-medium">{student.rollNumber}</TableCell>
                 <TableCell>{student.studentName}</TableCell>
                 <TableCell>{student.parentsName}</TableCell>
+                <TableCell>
+                    <Badge variant="secondary">{student.stream}</Badge>
+                </TableCell>
                 <TableCell className="text-right">{student.total}</TableCell>
                 <TableCell className="text-center">
                   <Badge

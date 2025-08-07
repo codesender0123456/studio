@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,15 +33,22 @@ const formSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
   dob: z.string().min(1, "Date of Birth is required"),
-  s1: z.coerce.number().min(0).max(100),
-  s2: z.coerce.number().min(0).max(100),
-  s3: z.coerce.number().min(0).max(100),
-  s4: z.coerce.number().min(0).max(100),
+  stream: z.enum(["PCM", "PCB", "PCMB"], { required_error: "Please select a stream."}),
+  physics: z.coerce.number().min(0).max(100),
+  chemistry: z.coerce.number().min(0).max(100),
+  maths: z.coerce.number().min(0).max(100).optional(),
+  biology: z.coerce.number().min(0).max(100).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const PASS_MARK = 33;
+
+const subjectFields = {
+    PCM: ["physics", "chemistry", "maths"],
+    PCB: ["physics", "chemistry", "biology"],
+    PCMB: ["physics", "chemistry", "maths", "biology"],
+} as const;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,20 +61,51 @@ export default function AddStudentForm() {
       studentName: "",
       parentsName: "",
       dob: "",
-      s1: 0,
-      s2: 0,
-      s3: 0,
-      s4: 0,
+      physics: 0,
+      chemistry: 0,
+      maths: 0,
+      biology: 0,
     },
   });
 
-  const marks = form.watch(["s1", "s2", "s3", "s4"]);
-  const total = marks.reduce((acc, mark) => acc + (Number(mark) || 0), 0);
-  const result: "Pass" | "Fail" = marks.every(mark => (Number(mark) || 0) >= PASS_MARK) ? "Pass" : "Fail";
+  const stream = form.watch("stream");
+  
+  const activeSubjects = stream ? subjectFields[stream] : [];
+  
+  const marks = form.watch(activeSubjects as any);
+  
+  const total = marks.reduce((acc: number, mark: any) => acc + (Number(mark) || 0), 0);
+  
+  const result: "Pass" | "Fail" = marks.every((mark: any) => (Number(mark) || 0) >= PASS_MARK) ? "Pass" : "Fail";
+  
+  const maxMarks = activeSubjects.length * 100;
+
+  useEffect(() => {
+    form.register("maths");
+    form.register("biology");
+  },[form.register])
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-    const fullData = { ...values, total, result };
+    
+    const subjects = {
+      physics: values.physics,
+      chemistry: values.chemistry,
+      maths: activeSubjects.includes("maths") ? values.maths! : null,
+      biology: activeSubjects.includes("biology") ? values.biology! : null,
+    }
+
+    const fullData = { 
+        rollNumber: values.rollNumber,
+        studentName: values.studentName,
+        parentsName: values.parentsName,
+        dob: values.dob,
+        stream: values.stream,
+        subjects, 
+        total, 
+        result 
+    };
+
     const response = await addStudent(fullData);
 
     if (response.success) {
@@ -78,7 +117,7 @@ export default function AddStudentForm() {
     } else {
       toast({
         title: "Error",
-        description: response.message,
+        description: response.message || "An error occurred.",
         variant: "destructive",
       });
     }
@@ -102,20 +141,7 @@ export default function AddStudentForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="dob"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
+           <FormField
             control={form.control}
             name="studentName"
             render={({ field }) => (
@@ -141,32 +167,72 @@ export default function AddStudentForm() {
               </FormItem>
             )}
           />
+           <FormField
+            control={form.control}
+            name="dob"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Date of Birth</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} className="glowing-shadow-sm" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-             <FormField
-              key={i}
-              control={form.control}
-              name={`s${i+1}` as keyof FormValues}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject {i+1}</FormLabel>
+         <FormField
+            control={form.control}
+            name="stream"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stream</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <Input type="number" min="0" max="100" {...field} className="glowing-shadow-sm" />
+                    <SelectTrigger className="glowing-shadow-sm">
+                      <SelectValue placeholder="Select a stream" />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </div>
+                  <SelectContent>
+                    <SelectItem value="PCM">PCM (Physics, Chemistry, Maths)</SelectItem>
+                    <SelectItem value="PCB">PCB (Physics, Chemistry, Biology)</SelectItem>
+                    <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Biology)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-card-foreground/5 holographic-card">
-            <div className="text-lg font-medium">Total Marks: <span className="font-bold text-primary text-glow">{total} / 400</span></div>
-            <div className="text-lg font-medium">Result: <span className={cn("font-bold text-glow", result === "Pass" ? "text-primary" : "text-destructive")}>{result}</span></div>
-        </div>
+        {stream && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {activeSubjects.map((subject) => (
+                <FormField
+                key={subject}
+                control={form.control}
+                name={subject as keyof FormValues}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel className="capitalize">{subject}</FormLabel>
+                    <FormControl>
+                        <Input type="number" min="0" max="100" {...field} className="glowing-shadow-sm" />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            ))}
+            </div>
+        )}
 
-        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
+        {stream && (
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-card-foreground/5 holographic-card">
+                <div className="text-lg font-medium">Total Marks: <span className="font-bold text-primary text-glow">{total} / {maxMarks}</span></div>
+                <div className="text-lg font-medium">Result: <span className={cn("font-bold text-glow", result === "Pass" ? "text-primary" : "text-destructive")}>{result}</span></div>
+            </div>
+        )}
+
+        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !stream}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
         </Button>

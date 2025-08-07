@@ -3,11 +3,12 @@ export type Student = {
   studentName: string;
   parentsName: string;
   dob: string; // YYYY-MM-DD
+  stream: "PCM" | "PCB" | "PCMB";
   subjects: {
-    s1: number;
-    s2: number;
-    s3: number;
-    s4: number;
+    physics: number;
+    chemistry: number;
+    maths: number | null;
+    biology: number | null;
   };
   total: number;
   result: "Pass" | "Fail";
@@ -19,7 +20,8 @@ export const students: Student[] = [
     studentName: "Liam Smith",
     parentsName: "Michael Smith",
     dob: "2006-05-15",
-    subjects: { s1: 88, s2: 92, s3: 78, s4: 95 },
+    stream: "PCMB",
+    subjects: { physics: 88, chemistry: 92, maths: 78, biology: 95 },
     total: 353,
     result: "Pass",
   },
@@ -28,8 +30,9 @@ export const students: Student[] = [
     studentName: "Olivia Johnson",
     parentsName: "Sarah Johnson",
     dob: "2006-08-22",
-    subjects: { s1: 91, s2: 85, s3: 89, s4: 94 },
-    total: 359,
+    stream: "PCM",
+    subjects: { physics: 91, chemistry: 85, maths: 89, biology: null },
+    total: 265,
     result: "Pass",
   },
   {
@@ -37,8 +40,9 @@ export const students: Student[] = [
     studentName: "Noah Williams",
     parentsName: "David Williams",
     dob: "2006-02-10",
-    subjects: { s1: 75, s2: 68, s3: 82, s4: 71 },
-    total: 296,
+    stream: "PCB",
+    subjects: { physics: 75, chemistry: 68, maths: null, biology: 82 },
+    total: 225,
     result: "Pass",
   },
   {
@@ -46,7 +50,8 @@ export const students: Student[] = [
     studentName: "Emma Brown",
     parentsName: "Jessica Brown",
     dob: "2006-11-30",
-    subjects: { s1: 25, s2: 45, s3: 55, s4: 60 },
+    stream: "PCMB",
+    subjects: { physics: 25, chemistry: 45, maths: 55, biology: 60 },
     total: 185,
     result: "Fail",
   },
@@ -55,8 +60,9 @@ export const students: Student[] = [
     studentName: "Oliver Jones",
     parentsName: "Christopher Jones",
     dob: "2006-07-19",
-    subjects: { s1: 98, s2: 99, s3: 95, s4: 97 },
-    total: 389,
+    stream: "PCM",
+    subjects: { physics: 98, chemistry: 99, maths: 95, biology: null },
+    total: 292,
     result: "Pass",
   },
   {
@@ -64,7 +70,8 @@ export const students: Student[] = [
     studentName: "Test Student",
     parentsName: "Test Parent",
     dob: "2007-01-01",
-    subjects: { s1: 75, s2: 80, s3: 85, s4: 90 },
+    stream: "PCMB",
+    subjects: { physics: 75, chemistry: 80, maths: 85, biology: 90 },
     total: 330,
     result: "Pass",
   },

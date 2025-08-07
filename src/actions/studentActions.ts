@@ -7,10 +7,13 @@ const studentSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
   dob: z.string().min(1, "Date of Birth is required"),
-  s1: z.coerce.number().min(0).max(100),
-  s2: z.coerce.number().min(0).max(100),
-  s3: z.coerce.number().min(0).max(100),
-  s4: z.coerce.number().min(0).max(100),
+  stream: z.enum(["PCM", "PCB", "PCMB"]),
+  subjects: z.object({
+    physics: z.coerce.number().min(0).max(100),
+    chemistry: z.coerce.number().min(0).max(100),
+    maths: z.coerce.number().min(0).max(100).nullable(),
+    biology: z.coerce.number().min(0).max(100).nullable(),
+  }),
   total: z.coerce.number(),
   result: z.enum(["Pass", "Fail"]),
 });
@@ -25,7 +28,7 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
       errors: validatedData.error.flatten().fieldErrors,
     };
   }
-
+  
   // In a real application, you would save this data to your database (e.g., a Google Sheet via an API).
   // For this demo, we'll just log it to the console.
   console.log("New student data received:", validatedData.data);

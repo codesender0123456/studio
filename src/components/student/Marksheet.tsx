@@ -25,7 +25,12 @@ type MarksheetProps = {
   onReset: () => void;
 };
 
-const subjectNames = ["Physics", "Chemistry", "Mathematics", "Computer Science"];
+const subjectDisplayNameMap = {
+    physics: "Physics",
+    chemistry: "Chemistry",
+    maths: "Mathematics",
+    biology: "Biology",
+}
 
 export default function Marksheet({ student, onReset }: MarksheetProps) {
   const marksheetRef = useRef<HTMLDivElement>(null);
@@ -52,6 +57,11 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
     setIsDownloading(false);
   };
 
+  const subjectsToDisplay = Object.entries(student.subjects)
+    .filter(([_, value]) => value !== null);
+  
+  const maxMarks = subjectsToDisplay.length * 100;
+
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
       <div ref={marksheetRef} className="p-6 bg-background/50">
@@ -71,6 +81,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div><span className="font-semibold text-muted-foreground">Roll No:</span> {student.rollNumber}</div>
             <div><span className="font-semibold text-muted-foreground">Parent:</span> {student.parentsName}</div>
             <div><span className="font-semibold text-muted-foreground">D.O.B:</span> {student.dob}</div>
+            <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
           </div>
           
           <Table>
@@ -81,9 +92,9 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.values(student.subjects).map((mark, index) => (
-                <TableRow key={index}>
-                  <TableCell>{subjectNames[index]}</TableCell>
+              {subjectsToDisplay.map(([subjectKey, mark]) => (
+                <TableRow key={subjectKey}>
+                  <TableCell>{subjectDisplayNameMap[subjectKey as keyof typeof subjectDisplayNameMap]}</TableCell>
                   <TableCell className="text-right">{mark}</TableCell>
                 </TableRow>
               ))}
@@ -94,7 +105,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
 
           <div className="flex justify-between items-center font-bold text-lg">
             <span>Total Marks:</span>
-            <span className="text-primary text-glow">{student.total} / 400</span>
+            <span className="text-primary text-glow">{student.total} / {maxMarks}</span>
           </div>
 
           <div className="flex justify-between items-center font-bold text-lg mt-2">
