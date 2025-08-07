@@ -35,6 +35,7 @@ const formSchema = z.object({
   dateOfTest: z.string().min(1, "Date of Test is required"),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET"], { required_error: "Please select a stream."}),
+  batch: z.string().min(1, "Batch is required"),
   physics: z.coerce.number().min(0).max(100),
   chemistry: z.coerce.number().min(0).max(100),
   maths: z.coerce.number().min(0).max(100).optional(),
@@ -63,6 +64,7 @@ export default function AddStudentForm() {
       studentName: "",
       parentsName: "",
       dateOfTest: "",
+      batch: "",
       physics: 0,
       chemistry: 0,
       maths: 0,
@@ -107,12 +109,13 @@ export default function AddStudentForm() {
         dateOfTest: values.dateOfTest,
         class: values.class,
         stream: values.stream,
+        batch: values.batch,
         subjects, 
         total, 
         result 
     };
 
-    const response = await addStudent(fullData);
+    const response = await addStudent(fullData as any);
 
     if (response.success) {
       toast({
@@ -187,7 +190,7 @@ export default function AddStudentForm() {
             )}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
                 control={form.control}
                 name="class"
@@ -227,6 +230,19 @@ export default function AddStudentForm() {
                         <SelectItem value="MHT-CET">MHT-CET (PCMB - Regular Batch)</SelectItem>
                     </SelectContent>
                     </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+             <FormField
+                control={form.control}
+                name="batch"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Batch</FormLabel>
+                    <FormControl>
+                    <Input placeholder="e.g., 2022-2024" {...field} className="glowing-shadow-sm" />
+                    </FormControl>
                     <FormMessage />
                 </FormItem>
                 )}

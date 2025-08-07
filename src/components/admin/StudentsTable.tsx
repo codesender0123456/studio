@@ -45,6 +45,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
               <TableHead>Parent's Name</TableHead>
               <TableHead>Class</TableHead>
               <TableHead>Stream</TableHead>
+              <TableHead>Batch</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead className="text-center">Result</TableHead>
             </TableRow>
@@ -59,6 +60,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                 <TableCell>
                     <Badge variant="secondary">{student.stream}</Badge>
                 </TableCell>
+                <TableCell>{student.batch}</TableCell>
                 <TableCell className="text-right">{student.total}</TableCell>
                 <TableCell className="text-center">
                   <Badge
