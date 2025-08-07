@@ -60,4 +60,13 @@ export const students: Student[] = [
     total: 485,
     result: "Pass",
   },
+  {
+    rollNumber: "2024-TEST",
+    studentName: "Test Student",
+    parentsName: "Test Parent",
+    dob: "2007-01-01",
+    subjects: { s1: 75, s2: 80, s3: 85, s4: 90, s5: 95 },
+    total: 425,
+    result: "Pass",
+  },
 ];
