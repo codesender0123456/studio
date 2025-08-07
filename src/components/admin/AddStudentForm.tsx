@@ -35,7 +35,9 @@ const formSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfTest: z.string().min(1, "Date of Test is required"),
+  dateOfTest: z.string().refine((date) => new Date(date) <= new Date(), {
+    message: "Date of registration cannot be in the future.",
+  }),
   email: z.string().email("A valid email is required for student login."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
@@ -55,7 +57,7 @@ export default function AddStudentForm() {
       rollNumber: "",
       studentName: "",
       parentsName: "",
-      dateOfTest: "",
+      dateOfTest: new Date().toISOString().split('T')[0], // Set default to today
       email: "",
       batch: "",
     },

@@ -3,12 +3,10 @@
 
 import { z } from "zod";
 import * as admin from "firebase-admin";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where, getFirestore as getClientFirestore } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // --- Firebase Admin SDK Initialization ---
-// This logic is moved here to ensure it runs in the correct server action context.
-
 let adminApp: admin.app.App;
 
 function getAdminApp() {
@@ -116,7 +114,6 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
-    // Provide a more specific error message if it's an initialization failure
     if (error.message.includes("environment variable is not set")) {
         return {
             success: false,
@@ -215,14 +212,14 @@ export async function deleteStudent(rollNumber: string, email: string) {
 export async function clearLoginAttempts() {
   try {
     const firestoreAdmin = getFirestore();
-    const logsCollection = collection(firestoreAdmin, "login_attempts");
-    const logsSnapshot = await getDocs(logsCollection);
+    const logsCollection = firestoreAdmin.collection("login_attempts");
+    const logsSnapshot = await logsCollection.get();
 
     if (logsSnapshot.empty) {
       return { success: true, message: "No logs to clear." };
     }
     
-    const batch = writeBatch(firestoreAdmin);
+    const batch = firestoreAdmin.batch();
     logsSnapshot.docs.forEach((doc) => {
       batch.delete(doc.ref);
     });
