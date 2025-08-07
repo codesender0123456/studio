@@ -2,47 +2,9 @@
 "use server";
 
 import { z } from "zod";
-import * as admin from "firebase-admin";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where, getDoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, query, where, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { addStudentFormSchema, updateStudentSchema } from "@/lib/schemas";
-
-
-// --- Firebase Admin SDK Initialization ---
-function getAdminApp() {
-  const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (!serviceAccountEnv) {
-    throw new Error("Server Configuration Error: The FIREBASE_SERVICE_ACCOUNT_JSON environment variable is not set.");
-  }
-
-  const serviceAccount = JSON.parse(serviceAccountEnv);
-  
-  if (admin.apps.length > 0) {
-    return admin.app();
-  }
-  
-  return admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-function getAuth() {
-  try {
-    return getAdminApp().auth();
-  } catch (error) {
-    console.error("Failed to get Firebase Auth instance:", error);
-    throw error;
-  }
-}
-
-function getFirestore() {
-  try {
-    return getAdminApp().firestore();
-  } catch (error) {
-    console.error("Failed to get Firebase Firestore instance:", error);
-    throw error;
-  }
-}
 
 // --- Server Actions ---
 
@@ -153,35 +115,5 @@ export async function deleteStudent(rollNumber: string) {
       success: false,
       message: error.message || "An unknown error occurred.",
     };
-  }
-}
-
-export async function clearLoginAttempts() {
-  try {
-    const firestoreAdmin = getFirestore();
-    const logsCollection = firestoreAdmin.collection("login_attempts");
-    const logsSnapshot = await logsCollection.get();
-
-    if (logsSnapshot.empty) {
-      return { success: true, message: "No logs to clear." };
-    }
-    
-    const batch = firestoreAdmin.batch();
-    logsSnapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    
-    await batch.commit();
-    
-    return { success: true, message: `Successfully cleared ${logsSnapshot.size} log(s).` };
-  } catch (error: any) {
-    console.error("Error clearing login attempts: ", error);
-     if (error.message.includes("environment variable is not set")) {
-        return {
-            success: false,
-            message: "Server configuration error: The Firebase Admin credentials are not set correctly on the server.",
-        };
-    }
-    return { success: false, message: error.message || "An unknown error occurred." };
   }
 }

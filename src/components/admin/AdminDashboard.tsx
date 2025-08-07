@@ -1,24 +1,22 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { Loader2, LogOut } from "lucide-react";
 
 import { auth, db } from "@/lib/firebase";
-import type { Student, LoginAttempt } from "@/lib/student-types";
+import type { Student } from "@/lib/student-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AddStudentForm from "./AddStudentForm";
 import StudentsTable from "./StudentsTable";
-import SecurityLogs from "./SecurityLogs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
-  const [loginAttempts, setLoginAttempts] = useState<LoginAttempt[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
-  const [loadingLogs, setLoadingLogs] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const { toast } = useToast();
 
@@ -36,31 +34,8 @@ export default function AdminDashboard() {
       setLoadingStudents(false);
     });
 
-    const logsQuery = query(collection(db, "login_attempts"), orderBy("timestamp", "desc"));
-    const logsUnsubscribe = onSnapshot(logsQuery, (querySnapshot) => {
-        const attemptsData: LoginAttempt[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            // Firestore timestamps can be null if the document is created offline
-            // and the timestamp is set on the server. We should handle this case.
-            const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-            attemptsData.push({
-                id: doc.id,
-                email: data.email,
-                status: data.status,
-                timestamp: timestamp,
-            });
-        });
-        setLoginAttempts(attemptsData);
-        setLoadingLogs(false);
-    }, (error) => {
-        console.error("Error fetching login attempts: ", error);
-        setLoadingLogs(false);
-    });
-
     return () => {
         studentsUnsubscribe();
-        logsUnsubscribe();
     };
   }, []);
 
@@ -85,7 +60,6 @@ export default function AdminDashboard() {
             <TabsList className="glowing-shadow-sm">
               <TabsTrigger value="view-students">View All Students</TabsTrigger>
               <TabsTrigger value="add-student">Add New Student</TabsTrigger>
-              <TabsTrigger value="security-logs">Security Logs</TabsTrigger>
             </TabsList>
             <Button variant="ghost" className="glowing-shadow-sm" onClick={handleSignOut} disabled={isSigningOut}>
                 {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
@@ -104,16 +78,6 @@ export default function AdminDashboard() {
           </TabsContent>
           <TabsContent value="add-student">
             <AddStudentForm />
-          </TabsContent>
-          <TabsContent value="security-logs">
-            {loadingLogs ? (
-                 <div className="flex justify-center items-center h-[400px]">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    <p>Loading security logs...</p>
-                </div>
-            ) : (
-                <SecurityLogs attempts={loginAttempts} />
-            )}
           </TabsContent>
         </Tabs>
       </CardContent>
