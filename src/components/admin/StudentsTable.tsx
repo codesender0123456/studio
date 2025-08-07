@@ -69,9 +69,9 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">All Streams</SelectItem>
-                    <SelectItem value="JEE">JEE - Regular Batch</SelectItem>
-                    <SelectItem value="NEET">NEET - Regular Batch</SelectItem>
-                    <SelectItem value="MHT-CET">MHT-CET - Regular Batch</SelectItem>
+                    <SelectItem value="JEE">JEE</SelectItem>
+                    <SelectItem value="NEET">NEET</SelectItem>
+                    <SelectItem value="MHT-CET">MHT-CET</SelectItem>
                 </SelectContent>
             </Select>
         </div>
