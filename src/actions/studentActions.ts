@@ -1,6 +1,7 @@
 
 "use server";
 
+import "dotenv/config";
 import { z } from "zod";
 import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
 import { db } from "@/lib/firebase";
