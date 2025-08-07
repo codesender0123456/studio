@@ -16,7 +16,7 @@ export type Student = {
 
 export const students: Student[] = [
   {
-    rollNumber: "2024-001",
+    rollNumber: "2024001",
     studentName: "Liam Smith",
     parentsName: "Michael Smith",
     dob: "2006-05-15",
@@ -25,7 +25,7 @@ export const students: Student[] = [
     result: "Pass",
   },
   {
-    rollNumber: "2024-002",
+    rollNumber: "2024002",
     studentName: "Olivia Johnson",
     parentsName: "Sarah Johnson",
     dob: "2006-08-22",
@@ -34,7 +34,7 @@ export const students: Student[] = [
     result: "Pass",
   },
   {
-    rollNumber: "2024-003",
+    rollNumber: "2024003",
     studentName: "Noah Williams",
     parentsName: "David Williams",
     dob: "2006-02-10",
@@ -43,7 +43,7 @@ export const students: Student[] = [
     result: "Pass",
   },
   {
-    rollNumber: "2024-004",
+    rollNumber: "2024004",
     studentName: "Emma Brown",
     parentsName: "Jessica Brown",
     dob: "2006-11-30",
@@ -52,7 +52,7 @@ export const students: Student[] = [
     result: "Fail",
   },
   {
-    rollNumber: "2024-005",
+    rollNumber: "2024005",
     studentName: "Oliver Jones",
     parentsName: "Christopher Jones",
     dob: "2006-07-19",
@@ -61,7 +61,7 @@ export const students: Student[] = [
     result: "Pass",
   },
   {
-    rollNumber: "2024-999",
+    rollNumber: "2024999",
     studentName: "Test Student",
     parentsName: "Test Parent",
     dob: "2007-01-01",

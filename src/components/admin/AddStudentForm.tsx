@@ -98,7 +98,7 @@ export default function AddStudentForm() {
               <FormItem>
                 <FormLabel>Roll Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., 2024-001" {...field} className="glowing-shadow-sm" />
+                  <Input placeholder="e.g., 2024001" {...field} className="glowing-shadow-sm" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
