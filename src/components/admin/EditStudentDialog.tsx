@@ -97,7 +97,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
   }
 
   return (
-    <DialogContent className="sm:max-w-[625px] holographic-card">
+    <DialogContent className="sm:max-w-4xl holographic-card">
         <DialogHeader>
             <DialogTitle>Manage Student: {student.studentName}</DialogTitle>
             <DialogDescription>

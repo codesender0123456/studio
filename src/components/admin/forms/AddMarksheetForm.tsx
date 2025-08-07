@@ -42,11 +42,11 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
     defaultValues: {
         testName: "",
         dateOfTest: new Date().toISOString().split('T')[0],
-        physics: undefined,
-        chemistry: undefined,
-        maths: undefined,
-        botany: undefined,
-        zoology: undefined,
+        physics: { topic: "", marks: undefined, maxMarks: undefined },
+        chemistry: { topic: "", marks: undefined, maxMarks: undefined },
+        maths: { topic: "", marks: undefined, maxMarks: undefined },
+        botany: { topic: "", marks: undefined, maxMarks: undefined },
+        zoology: { topic: "", marks: undefined, maxMarks: undefined },
     },
     mode: "onBlur"
   });
@@ -63,11 +63,11 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
         form.reset({
             testName: "",
             dateOfTest: new Date().toISOString().split('T')[0],
-            physics: undefined,
-            chemistry: undefined,
-            maths: undefined,
-            botany: undefined,
-            zoology: undefined,
+            physics: { topic: "", marks: undefined, maxMarks: undefined },
+            chemistry: { topic: "", marks: undefined, maxMarks: undefined },
+            maths: { topic: "", marks: undefined, maxMarks: undefined },
+            botany: { topic: "", marks: undefined, maxMarks: undefined },
+            zoology: { topic: "", marks: undefined, maxMarks: undefined },
         });
     } else {
         toast({
@@ -81,32 +81,34 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
   }
 
   const renderSubjectInput = (name: "physics" | "chemistry" | "maths" | "botany" | "zoology", label: string) => (
-     <div className="space-y-2">
-        <FormLabel>{label}</FormLabel>
-         <FormField
-            control={form.control}
-            name={`${name}.topic`}
-            render={({ field }) => (
-                <FormItem className="w-full">
-                <FormControl>
-                    <Input 
-                        type="text"
-                        placeholder="Topic"
-                        {...field}
-                        value={field.value ?? ""}
-                        className="glowing-shadow-sm h-9"
-                        />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-        />
-        <div className="flex gap-2">
+     <div className="space-y-2 border p-4 rounded-md">
+        <FormLabel className="text-base">{label}</FormLabel>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <FormField
+                control={form.control}
+                name={`${name}.topic`}
+                render={({ field }) => (
+                    <FormItem className="w-full">
+                    <FormLabel className="text-xs text-muted-foreground">Topic</FormLabel>
+                    <FormControl>
+                        <Input 
+                            type="text"
+                            placeholder="Topic"
+                            {...field}
+                            value={field.value ?? ""}
+                            className="glowing-shadow-sm h-9"
+                            />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
             <FormField
                 control={form.control}
                 name={`${name}.marks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
+                     <FormLabel className="text-xs text-muted-foreground">Marks Obtained</FormLabel>
                     <FormControl>
                         <Input 
                             type="number"
@@ -126,6 +128,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 name={`${name}.maxMarks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
+                    <FormLabel className="text-xs text-muted-foreground">Total Marks</FormLabel>
                     <FormControl>
                         <Input 
                             type="number" 
