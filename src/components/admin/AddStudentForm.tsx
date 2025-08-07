@@ -33,6 +33,7 @@ const formSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
   dob: z.string().min(1, "Date of Birth is required"),
+  class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["PCM", "PCB", "PCMB"], { required_error: "Please select a stream."}),
   physics: z.coerce.number().min(0).max(100),
   chemistry: z.coerce.number().min(0).max(100),
@@ -104,6 +105,7 @@ export default function AddStudentForm() {
         studentName: values.studentName,
         parentsName: values.parentsName,
         dob: values.dob,
+        class: values.class,
         stream: values.stream,
         subjects, 
         total, 
@@ -185,28 +187,51 @@ export default function AddStudentForm() {
             )}
           />
         </div>
-         <FormField
-            control={form.control}
-            name="stream"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stream</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="glowing-shadow-sm">
-                      <SelectValue placeholder="Select a stream" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="PCM">PCM (Physics, Chemistry, Maths)</SelectItem>
-                    <SelectItem value="PCB">PCB (Physics, Chemistry, Zoology, Botany)</SelectItem>
-                    <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Zoology, Botany)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+                control={form.control}
+                name="class"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Class</FormLabel>
+                    <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
+                    <FormControl>
+                        <SelectTrigger className="glowing-shadow-sm">
+                        <SelectValue placeholder="Select a class" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="11">11th</SelectItem>
+                        <SelectItem value="12">12th</SelectItem>
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="stream"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Stream</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger className="glowing-shadow-sm">
+                        <SelectValue placeholder="Select a stream" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="PCM">PCM (Physics, Chemistry, Maths)</SelectItem>
+                        <SelectItem value="PCB">PCB (Physics, Chemistry, Zoology, Botany)</SelectItem>
+                        <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Zoology, Botany)</SelectItem>
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+        </div>
 
         {stream && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
