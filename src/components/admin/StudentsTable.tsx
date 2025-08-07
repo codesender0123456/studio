@@ -43,9 +43,6 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
       if (streamFilter === 'all') {
         return true;
       }
-      if (streamFilter === 'Regular Batch') {
-        return ["JEE", "NEET", "MHT-CET", "Regular Batch"].includes(student.stream);
-      }
       return student.stream === streamFilter;
     });
 
