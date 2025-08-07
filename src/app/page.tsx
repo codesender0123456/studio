@@ -73,7 +73,7 @@ export default function Home() {
       <div className="w-full max-w-md mx-auto">
         <div className="text-center mb-8">
             <div className="flex justify-center items-center gap-4 mb-4">
-                <Icons.logo className="h-12 w-12 text-primary" />
+                <Icons.logo className="h-16 w-16 text-primary" />
                 <h1 className="text-5xl font-bold font-headline text-glow">
                 Phoenix Science Academy
                 </h1>

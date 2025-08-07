@@ -137,7 +137,7 @@ export default function Marksheet({ student, onReset, isSigningOut }: MarksheetP
       <div ref={marksheetRef} className="p-6 bg-background/50">
         <CardHeader className="p-0 mb-4">
             <div className="flex items-center justify-center space-x-4">
-                <Icons.logo className="h-10 w-10 text-primary" />
+                <Icons.logo className="h-16 w-16 text-primary" />
                 <div>
                     <h2 className="text-2xl font-bold font-headline text-glow">Phoenix Science Academy</h2>
                     <p className="text-sm text-center text-muted-foreground">Student Marksheet</p>
