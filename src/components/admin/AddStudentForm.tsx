@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { Student } from "@/lib/student-types";
 
 
@@ -71,24 +71,31 @@ export default function AddStudentForm() {
         setExistingStudent(null);
         return;
       }
-      const { data } = await getStudentByEmail(email);
-      if (data) {
-        setExistingStudent(data as Student);
-        form.setValue("studentName", data.studentName, { shouldValidate: true });
-        form.setValue("class", data.class, { shouldValidate: true });
-        form.setValue("stream", data.stream, { shouldValidate: true });
-        form.setValue("batch", data.batch, { shouldValidate: true });
-        form.setValue("parentsName", data.parentsName, { shouldValidate: true });
-        form.setValue("rollNumber", data.rollNumber, { shouldValidate: true });
-      } else {
+      try {
+        const { data, success, message } = await getStudentByEmail(email);
+        if (success && data) {
+          setExistingStudent(data as Student);
+        } else if (!success) {
+          // Handle case where the check itself fails, maybe show a toast
+          console.error("Failed to check email:", message);
+          setExistingStudent(null);
+        } else {
+          setExistingStudent(null);
+        }
+      } catch (error) {
+        console.error("Error checking email existence:", error);
         setExistingStudent(null);
       }
     }, 500),
-    []
+    [form]
   );
 
   useEffect(() => {
-    checkEmail(watchedEmail);
+    if (watchedEmail) {
+      checkEmail(watchedEmail);
+    } else {
+        setExistingStudent(null);
+    }
   }, [watchedEmail, checkEmail]);
 
   async function onSubmit(values: FormValues) {
@@ -101,7 +108,16 @@ export default function AddStudentForm() {
         title: "Success",
         description: response.message,
       });
-      form.reset();
+      form.reset({
+        rollNumber: "",
+        studentName: "",
+        parentsName: "",
+        dateOfTest: new Date().toISOString().split('T')[0],
+        email: "",
+        batch: "",
+        class: undefined,
+        stream: undefined
+      });
       setExistingStudent(null);
     } else {
       toast({
@@ -133,8 +149,9 @@ export default function AddStudentForm() {
              {existingStudent && (
               <Alert variant="destructive" className="md:col-span-2">
                 <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Student Already Exists</AlertTitle>
                 <AlertDescription>
-                  A student with this email already exists in Firestore. Submitting will create a new login but may lead to duplicate records if the student is not already authenticated.
+                  A student with this email address already exists. Please use a different email or edit the existing student record.
                 </AlertDescription>
               </Alert>
             )}
@@ -252,7 +269,7 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
-        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
+        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !!existingStudent}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
         </Button>
