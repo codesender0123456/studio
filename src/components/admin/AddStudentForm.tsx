@@ -1,10 +1,12 @@
+
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Loader2, AlertTriangle } from "lucide-react";
+import debounce from "lodash.debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addStudent } from "@/actions/studentActions";
+import { addStudent, getStudentByEmail } from "@/actions/studentActions";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -25,6 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { Student } from "@/lib/student-types";
+
 
 const formSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
@@ -42,6 +47,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingStudent, setExistingStudent] = useState<Student | null>(null);
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -57,6 +63,34 @@ export default function AddStudentForm() {
     },
   });
 
+  const watchedEmail = useWatch({ control: form.control, name: 'email'});
+
+  const checkEmail = useCallback(
+    debounce(async (email: string) => {
+      if (!z.string().email().safeParse(email).success) {
+        setExistingStudent(null);
+        return;
+      }
+      const { data } = await getStudentByEmail(email);
+      if (data) {
+        setExistingStudent(data as Student);
+        form.setValue("studentName", data.studentName, { shouldValidate: true });
+        form.setValue("class", data.class, { shouldValidate: true });
+        form.setValue("stream", data.stream, { shouldValidate: true });
+        form.setValue("batch", data.batch, { shouldValidate: true });
+        form.setValue("parentsName", data.parentsName, { shouldValidate: true });
+        form.setValue("rollNumber", data.rollNumber, { shouldValidate: true });
+      } else {
+        setExistingStudent(null);
+      }
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    checkEmail(watchedEmail);
+  }, [watchedEmail, checkEmail]);
+
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     
@@ -68,6 +102,7 @@ export default function AddStudentForm() {
         description: response.message,
       });
       form.reset();
+      setExistingStudent(null);
     } else {
       toast({
         title: "Error",
@@ -81,6 +116,29 @@ export default function AddStudentForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Student's Login Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="student.email@example.com" {...field} className="glowing-shadow-sm" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             {existingStudent && (
+              <Alert variant="destructive" className="md:col-span-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  A student with this email already exists. Submitting will create a new login but may lead to duplicate records.
+                </AlertDescription>
+              </Alert>
+            )}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -134,32 +192,6 @@ export default function AddStudentForm() {
               </FormItem>
             )}
           />
-           <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Student's Login Email</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="student.email@example.com" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Set Initial Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
@@ -168,7 +200,7 @@ export default function AddStudentForm() {
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Class</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(Number(value))} defaultValue={String(field.value)}>
+                    <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value) || ''}>
                     <FormControl>
                         <SelectTrigger className="glowing-shadow-sm">
                         <SelectValue placeholder="Select a class" />
@@ -189,7 +221,7 @@ export default function AddStudentForm() {
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Stream</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
                     <FormControl>
                         <SelectTrigger className="glowing-shadow-sm">
                         <SelectValue placeholder="Select a stream" />
@@ -220,6 +252,19 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
+         <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Set Initial Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} className="glowing-shadow-sm" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student

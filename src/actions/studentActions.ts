@@ -1,7 +1,8 @@
+
 "use server";
 
 import { z } from "zod";
-import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch } from "firebase/firestore"; 
+import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
 import { db } from "@/lib/firebase";
 import { authAdmin } from "@/lib/firebase-admin";
 
@@ -67,6 +68,27 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
       message: message,
     };
   }
+}
+
+export async function getStudentByEmail(email: string) {
+    if (!email) {
+        return { success: false, data: null };
+    }
+    try {
+        const studentsRef = collection(db, "students");
+        const q = query(studentsRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const studentDoc = querySnapshot.docs[0];
+            return { success: true, data: studentDoc.data() };
+        } else {
+            return { success: true, data: null };
+        }
+    } catch (error) {
+        console.error("Error fetching student by email: ", error);
+        return { success: false, data: null };
+    }
 }
 
 export async function updateStudent(rollNumber: string, formData: z.infer<typeof updateStudentSchema>) {
