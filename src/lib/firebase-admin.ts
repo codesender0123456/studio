@@ -1,33 +1,60 @@
 
 import * as admin from "firebase-admin";
+import type { Auth } from "firebase-admin/auth";
+import type { Firestore } from "firebase-admin/firestore";
 
-// This is a server-side only file.
+interface AdminServices {
+    auth: Auth;
+    firestore: Firestore;
+}
 
-if (!admin.apps.length) {
+let services: AdminServices | null = null;
+
+function initializeAdminApp(): AdminServices {
+    if (admin.apps.length > 0) {
+        if (services) {
+            return services;
+        }
+        const app = admin.apps[0]!;
+        services = {
+            auth: app.auth(),
+            firestore: app.firestore(),
+        };
+        return services;
+    }
+
     const serviceAccount = {
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // Replace escaped newlines from environment variables
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     };
 
+    if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
+        throw new Error("Firebase Admin credentials are not fully set in environment variables. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.");
+    }
+
     try {
-        if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
-            throw new Error("Firebase Admin credentials are not fully set in environment variables. Required: FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY.");
-        }
-        admin.initializeApp({
+        const app = admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
         });
+        services = {
+            auth: app.auth(),
+            firestore: app.firestore(),
+        };
+        return services;
     } catch (error: any) {
-        // Log the detailed error to the server console for debugging
         console.error("Firebase Admin SDK initialization error:", error.message);
-        // Throw a more generic error to the client to avoid exposing sensitive details
         throw new Error("Firebase Admin SDK initialization failed. Check server logs for details.");
     }
 }
 
+export function getAdminServices(): AdminServices {
+    if (services) {
+        return services;
+    }
+    return initializeAdminApp();
+}
 
-const authAdmin = admin.auth();
-const dbAdmin = admin.firestore();
-
+// Keeping these for any files that might still use them, but encouraging getAdminServices
+const { auth: authAdmin, firestore: dbAdmin } = getAdminServices();
 export { authAdmin, dbAdmin };

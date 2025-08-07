@@ -3,8 +3,8 @@
 
 import { z } from "zod";
 import { doc, setDoc, deleteDoc, updateDoc, collection, getDocs, writeBatch, query, where } from "firebase/firestore"; 
+import { getAdminServices } from "@/lib/firebase-admin";
 import { db } from "@/lib/firebase";
-import { authAdmin } from "@/lib/firebase-admin";
 
 const studentSchema = z.object({
   rollNumber: z.string().min(1, "Roll Number is required"),
@@ -27,6 +27,8 @@ const resetPasswordSchema = z.object({
 
 export async function addStudent(formData: z.infer<typeof addStudentFormSchema>) {
   try {
+    const { auth: authAdmin } = getAdminServices();
+
     const validatedData = addStudentFormSchema.safeParse(formData);
 
     if (!validatedData.success) {
@@ -56,9 +58,11 @@ export async function addStudent(formData: z.infer<typeof addStudentFormSchema>)
     };
   } catch (error: any) {
     console.error("Error adding student: ", error);
-    let message = error.message || "An unknown error occurred.";
-    if (error.code === 'auth/email-already-exists') {
+    let message = "An error occurred while communicating with the database.";
+    if(error.code === 'auth/email-already-exists') {
         message = "A student with this email address already exists in the authentication system.";
+    } else if (error.message.includes("Firebase Admin SDK initialization failed")) {
+        message = error.message;
     }
     return {
       success: false,
@@ -118,6 +122,7 @@ export async function updateStudent(rollNumber: string, formData: z.infer<typeof
 
 export async function resetStudentPassword(uid: string, formData: z.infer<typeof resetPasswordSchema>) {
     try {
+        const { auth: authAdmin } = getAdminServices();
         const validatedData = resetPasswordSchema.safeParse(formData);
         if (!validatedData.success) {
             return {
@@ -143,6 +148,8 @@ export async function deleteStudent(rollNumber: string, email: string) {
   }
   
   try {
+    const { auth: authAdmin } = getAdminServices();
+
     // 1. Delete from Firestore
     const studentRef = doc(db, "students", rollNumber.toLowerCase());
     await deleteDoc(studentRef);
