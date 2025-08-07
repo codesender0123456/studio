@@ -8,7 +8,8 @@ export type Student = {
     physics: number;
     chemistry: number;
     maths: number | null;
-    biology: number | null;
+    zoology: number | null;
+    botany: number | null;
   };
   total: number;
   result: "Pass" | "Fail";
@@ -21,7 +22,7 @@ export const students: Student[] = [
     parentsName: "Michael Smith",
     dob: "2006-05-15",
     stream: "PCMB",
-    subjects: { physics: 88, chemistry: 92, maths: 78, biology: 95 },
+    subjects: { physics: 88, chemistry: 92, maths: 78, zoology: 48, botany: 47 },
     total: 353,
     result: "Pass",
   },
@@ -31,7 +32,7 @@ export const students: Student[] = [
     parentsName: "Sarah Johnson",
     dob: "2006-08-22",
     stream: "PCM",
-    subjects: { physics: 91, chemistry: 85, maths: 89, biology: null },
+    subjects: { physics: 91, chemistry: 85, maths: 89, zoology: null, botany: null },
     total: 265,
     result: "Pass",
   },
@@ -41,7 +42,7 @@ export const students: Student[] = [
     parentsName: "David Williams",
     dob: "2006-02-10",
     stream: "PCB",
-    subjects: { physics: 75, chemistry: 68, maths: null, biology: 82 },
+    subjects: { physics: 75, chemistry: 68, maths: null, zoology: 40, botany: 42 },
     total: 225,
     result: "Pass",
   },
@@ -51,7 +52,7 @@ export const students: Student[] = [
     parentsName: "Jessica Brown",
     dob: "2006-11-30",
     stream: "PCMB",
-    subjects: { physics: 25, chemistry: 45, maths: 55, biology: 60 },
+    subjects: { physics: 25, chemistry: 45, maths: 55, zoology: 30, botany: 30 },
     total: 185,
     result: "Fail",
   },
@@ -61,7 +62,7 @@ export const students: Student[] = [
     parentsName: "Christopher Jones",
     dob: "2006-07-19",
     stream: "PCM",
-    subjects: { physics: 98, chemistry: 99, maths: 95, biology: null },
+    subjects: { physics: 98, chemistry: 99, maths: 95, zoology: null, botany: null },
     total: 292,
     result: "Pass",
   },
@@ -71,7 +72,7 @@ export const students: Student[] = [
     parentsName: "Test Parent",
     dob: "2007-01-01",
     stream: "PCMB",
-    subjects: { physics: 75, chemistry: 80, maths: 85, biology: 90 },
+    subjects: { physics: 75, chemistry: 80, maths: 85, zoology: 45, botany: 45 },
     total: 330,
     result: "Pass",
   },

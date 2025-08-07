@@ -37,7 +37,8 @@ const formSchema = z.object({
   physics: z.coerce.number().min(0).max(100),
   chemistry: z.coerce.number().min(0).max(100),
   maths: z.coerce.number().min(0).max(100).optional(),
-  biology: z.coerce.number().min(0).max(100).optional(),
+  zoology: z.coerce.number().min(0).max(100).optional(),
+  botany: z.coerce.number().min(0).max(100).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,8 +47,8 @@ const PASS_MARK = 33;
 
 const subjectFields = {
     PCM: ["physics", "chemistry", "maths"],
-    PCB: ["physics", "chemistry", "biology"],
-    PCMB: ["physics", "chemistry", "maths", "biology"],
+    PCB: ["physics", "chemistry", "zoology", "botany"],
+    PCMB: ["physics", "chemistry", "maths", "zoology", "botany"],
 } as const;
 
 export default function AddStudentForm() {
@@ -64,7 +65,8 @@ export default function AddStudentForm() {
       physics: 0,
       chemistry: 0,
       maths: 0,
-      biology: 0,
+      zoology: 0,
+      botany: 0,
     },
   });
 
@@ -82,7 +84,8 @@ export default function AddStudentForm() {
 
   useEffect(() => {
     form.register("maths");
-    form.register("biology");
+    form.register("zoology");
+    form.register("botany");
   },[form.register])
 
   async function onSubmit(values: FormValues) {
@@ -92,7 +95,8 @@ export default function AddStudentForm() {
       physics: values.physics,
       chemistry: values.chemistry,
       maths: activeSubjects.includes("maths") ? values.maths! : null,
-      biology: activeSubjects.includes("biology") ? values.biology! : null,
+      zoology: activeSubjects.includes("zoology") ? values.zoology! : null,
+      botany: activeSubjects.includes("botany") ? values.botany! : null,
     }
 
     const fullData = { 
@@ -195,8 +199,8 @@ export default function AddStudentForm() {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="PCM">PCM (Physics, Chemistry, Maths)</SelectItem>
-                    <SelectItem value="PCB">PCB (Physics, Chemistry, Biology)</SelectItem>
-                    <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Biology)</SelectItem>
+                    <SelectItem value="PCB">PCB (Physics, Chemistry, Zoology, Botany)</SelectItem>
+                    <SelectItem value="PCMB">PCMB (Physics, Chemistry, Maths, Zoology, Botany)</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -205,7 +209,7 @@ export default function AddStudentForm() {
           />
 
         {stream && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {activeSubjects.map((subject) => (
                 <FormField
                 key={subject}

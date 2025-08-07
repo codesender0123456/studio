@@ -29,7 +29,8 @@ const subjectDisplayNameMap = {
     physics: "Physics",
     chemistry: "Chemistry",
     maths: "Mathematics",
-    biology: "Biology",
+    zoology: "Zoology",
+    botany: "Botany",
 }
 
 export default function Marksheet({ student, onReset }: MarksheetProps) {
