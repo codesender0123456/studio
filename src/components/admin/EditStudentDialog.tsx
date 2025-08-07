@@ -41,7 +41,9 @@ import type { Student } from "@/lib/student-types";
 const formSchema = z.object({
   studentName: z.string().min(1, "Student Name is required"),
   parentsName: z.string().min(1, "Parent's Name is required"),
-  dateOfBirth: z.string().min(1, "Date of Birth is required"),
+  dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
+    message: "Date of birth cannot be in the future.",
+  }),
   email: z.string().email("A valid email is required for student login."),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
