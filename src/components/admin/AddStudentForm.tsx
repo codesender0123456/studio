@@ -225,9 +225,9 @@ export default function AddStudentForm() {
                         </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        <SelectItem value="JEE">JEE (PCM - Regular Batch)</SelectItem>
-                        <SelectItem value="NEET">NEET (PCB - Regular Batch)</SelectItem>
-                        <SelectItem value="MHT-CET">MHT-CET (PCMB - Regular Batch)</SelectItem>
+                        <SelectItem value="JEE">JEE - Regular Batch</SelectItem>
+                        <SelectItem value="NEET">NEET - Regular Batch</SelectItem>
+                        <SelectItem value="MHT-CET">MHT-CET - Regular Batch</SelectItem>
                     </SelectContent>
                     </Select>
                     <FormMessage />
