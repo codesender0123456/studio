@@ -42,11 +42,11 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
     defaultValues: {
         testName: "",
         dateOfTest: new Date().toISOString().split('T')[0],
-        physics: 0,
-        chemistry: 0,
-        maths: isJeeStudent || isRegularOrCet ? 0 : null,
-        botany: isNeetStudent || isRegularOrCet ? 0 : null,
-        zoology: isNeetStudent || isRegularOrCet ? 0 : null,
+        physics: null,
+        chemistry: null,
+        maths: null,
+        botany: null,
+        zoology: null,
     },
   });
 
@@ -59,7 +59,15 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
             title: "Success",
             description: response.message,
         });
-        form.reset();
+        form.reset({
+            testName: "",
+            dateOfTest: new Date().toISOString().split('T')[0],
+            physics: null,
+            chemistry: null,
+            maths: null,
+            botany: null,
+            zoology: null,
+        });
     } else {
         toast({
             title: "Error",
@@ -70,6 +78,17 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
 
     setIsSubmitting(false);
   }
+
+  const renderNumberInput = (field: any, placeholder: string) => (
+    <Input 
+        type="number" 
+        placeholder={placeholder}
+        {...field}
+        onChange={e => field.onChange(e.target.value === '' ? null : e.target.valueAsNumber)}
+        value={field.value ?? ""}
+        className="glowing-shadow-sm" 
+    />
+  )
 
   return (
     <Form {...form}>
@@ -102,100 +121,81 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
               )}
             />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="physics"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Physics Marks</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="out of 180" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="chemistry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Chemistry Marks</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="out of 180" {...field} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(isJeeStudent || isRegularOrCet) && (
+        <div className="space-y-4">
+            <p className="text-sm font-medium text-muted-foreground">Enter marks only for the subjects included in this test.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                     control={form.control}
-                    name="maths"
+                    name="physics"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Maths Marks</FormLabel>
+                        <FormLabel>Physics Marks</FormLabel>
                         <FormControl>
-                        <Input 
-                            type="number" 
-                            placeholder="out of 120"
-                            {...field} 
-                            value={field.value ?? ""}
-                            className="glowing-shadow-sm" 
-                        />
+                            {renderNumberInput(field, "out of 180")}
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                     )}
                 />
-            )}
-
-            {(isNeetStudent || isRegularOrCet) && (
-                <>
+                <FormField
+                    control={form.control}
+                    name="chemistry"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Chemistry Marks</FormLabel>
+                        <FormControl>
+                            {renderNumberInput(field, "out of 180")}
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                {(isJeeStudent || isRegularOrCet) && (
                     <FormField
                         control={form.control}
-                        name="botany"
+                        name="maths"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Botany Marks</FormLabel>
+                            <FormLabel>Maths Marks</FormLabel>
                             <FormControl>
-                                <Input 
-                                    type="number" 
-                                    placeholder="out of 180" 
-                                    {...field} 
-                                    value={field.value ?? ""}
-                                    className="glowing-shadow-sm" 
-                                />
+                                {renderNumberInput(field, "out of 120")}
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="zoology"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Zoology Marks</FormLabel>
-                            <FormControl>
-                                <Input 
-                                    type="number" 
-                                    placeholder="out of 180" 
-                                    {...field} 
-                                    value={field.value ?? ""}
-                                    className="glowing-shadow-sm" 
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                </>
-            )}
+                )}
+                {(isNeetStudent || isRegularOrCet) && (
+                    <>
+                        <FormField
+                            control={form.control}
+                            name="botany"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Botany Marks</FormLabel>
+                                <FormControl>
+                                    {renderNumberInput(field, "out of 180")}
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="zoology"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Zoology Marks</FormLabel>
+                                <FormControl>
+                                    {renderNumberInput(field, "out of 180")}
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    </>
+                )}
+            </div>
         </div>
         <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

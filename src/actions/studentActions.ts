@@ -66,7 +66,9 @@ export async function saveMarksheetData(rollNumber: string, formData: z.infer<ty
         
         const { total, ...marksheetData } = validatedData.data;
 
-        let calculatedTotal = marksheetData.physics + marksheetData.chemistry;
+        let calculatedTotal = 0;
+        if(marksheetData.physics) calculatedTotal += marksheetData.physics;
+        if(marksheetData.chemistry) calculatedTotal += marksheetData.chemistry;
         if(marksheetData.maths) calculatedTotal += marksheetData.maths;
         if(marksheetData.botany) calculatedTotal += marksheetData.botany;
         if(marksheetData.zoology) calculatedTotal += marksheetData.zoology;

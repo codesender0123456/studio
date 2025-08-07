@@ -48,17 +48,20 @@ const MarksheetDetails = ({ student }: { student: Student }) => {
 }
 
 const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
-    const isNeet = marksheet.botany !== null && marksheet.zoology !== null;
-    const isJee = marksheet.maths !== null;
-
     let totalMarks = 0;
-    if (marksheet.physics) totalMarks += 180;
-    if (marksheet.chemistry) totalMarks += 180;
-    if (isJee) totalMarks += 120;
-    if (isNeet) {
-        if (marksheet.botany) totalMarks += 180;
-        if (marksheet.zoology) totalMarks += 180;
-    }
+    if (marksheet.physics !== null && marksheet.physics !== undefined) totalMarks += 180;
+    if (marksheet.chemistry !== null && marksheet.chemistry !== undefined) totalMarks += 180;
+    if (marksheet.maths !== null && marksheet.maths !== undefined) totalMarks += 120;
+    if (marksheet.botany !== null && marksheet.botany !== undefined) totalMarks += 180;
+    if (marksheet.zoology !== null && marksheet.zoology !== undefined) totalMarks += 180;
+
+    const subjects = [
+        { name: "Physics", marks: marksheet.physics, max: 180 },
+        { name: "Chemistry", marks: marksheet.chemistry, max: 180 },
+        { name: "Maths", marks: marksheet.maths, max: 120 },
+        { name: "Botany", marks: marksheet.botany, max: 180 },
+        { name: "Zoology", marks: marksheet.zoology, max: 180 },
+    ].filter(s => s.marks !== null && s.marks !== undefined);
 
 
     return (
@@ -73,32 +76,13 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
                 <div className="font-semibold text-center">Marks</div>
                 <div className="font-semibold text-center">Max Marks</div>
                 
-                <div className="text-center">Physics</div>
-                <div className="text-center">{marksheet.physics}</div>
-                <div className="text-center">180</div>
-
-                <div className="text-center">Chemistry</div>
-                <div className="text-center">{marksheet.chemistry}</div>
-                <div className="text-center">180</div>
-                
-                {isJee && (
-                    <>
-                        <div className="text-center">Maths</div>
-                        <div className="text-center">{marksheet.maths}</div>
-                        <div className="text-center">120</div>
-                    </>
-                )}
-                {isNeet && (
-                    <>
-                        <div className="text-center">Botany</div>
-                        <div className="text-center">{marksheet.botany}</div>
-                        <div className="text-center">180</div>
-
-                        <div className="text-center">Zoology</div>
-                        <div className="text-center">{marksheet.zoology}</div>
-                        <div className="text-center">180</div>
-                    </>
-                )}
+                {subjects.map(subject => (
+                    <React.Fragment key={subject.name}>
+                        <div className="text-center">{subject.name}</div>
+                        <div className="text-center">{subject.marks}</div>
+                        <div className="text-center">{subject.max}</div>
+                    </React.Fragment>
+                ))}
             </div>
         </div>
     )
