@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { collection, onSnapshot, query } from "firebase/firestore";
-import { LogOut } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { db } from "@/lib/firebase";
 import type { Student } from "@/lib/student-types";
@@ -29,6 +30,9 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       });
       setStudents(studentsData);
       setLoading(false);
+    }, (error) => {
+      console.error("Error fetching students: ", error);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -43,9 +47,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <TabsTrigger value="view-students">View All Students</TabsTrigger>
               <TabsTrigger value="add-student">Add New Student</TabsTrigger>
             </TabsList>
-            <Button variant="ghost" onClick={onLogout} className="glowing-shadow-sm">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+            <Button asChild variant="ghost" className="glowing-shadow-sm">
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Portal
+              </Link>
             </Button>
           </div>
           <TabsContent value="view-students">

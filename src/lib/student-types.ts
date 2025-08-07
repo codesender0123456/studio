@@ -6,6 +6,12 @@ export type Student = {
   class: 11 | 12;
   stream: "JEE" | "NEET" | "MHT-CET" | "Regular Batch";
   batch: string; // e.g., "2022-2024"
+};
+
+export type MarksheetData = {
+  testId: string;
+  studentRollNumber: string;
+  dateOfTest: string; // YYYY-MM-DD
   subjects: {
     physics: number;
     chemistry: number;
@@ -15,4 +21,4 @@ export type Student = {
   };
   total: number;
   result: "Pass" | "Fail";
-};
+}

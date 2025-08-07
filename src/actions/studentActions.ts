@@ -12,15 +12,6 @@ const studentSchema = z.object({
   class: z.coerce.number().min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
   batch: z.string().min(1, "Batch is required"),
-  subjects: z.object({
-    physics: z.coerce.number().min(0).max(100),
-    chemistry: z.coerce.number().min(0).max(100),
-    maths: z.coerce.number().min(0).max(100).nullable(),
-    zoology: z.coerce.number().min(0).max(100).nullable(),
-    botany: z.coerce.number().min(0).max(100).nullable(),
-  }),
-  total: z.coerce.number(),
-  result: z.enum(["Pass", "Fail"]),
 });
 
 export async function addStudent(formData: z.infer<typeof studentSchema>) {

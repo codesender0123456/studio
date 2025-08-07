@@ -3,14 +3,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { addStudent } from "@/actions/studentActions";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -36,23 +34,9 @@ const formSchema = z.object({
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
   stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
   batch: z.string().min(1, "Batch is required"),
-  physics: z.coerce.number().min(0).max(100),
-  chemistry: z.coerce.number().min(0).max(100),
-  maths: z.coerce.number().min(0).max(100).optional(),
-  zoology: z.coerce.number().min(0).max(100).optional(),
-  botany: z.coerce.number().min(0).max(100).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const PASS_MARK = 33;
-
-const subjectFields = {
-    JEE: ["physics", "chemistry", "maths"],
-    NEET: ["physics", "chemistry", "zoology", "botany"],
-    "MHT-CET": ["physics", "chemistry", "maths", "zoology", "botany"],
-    "Regular Batch": ["physics", "chemistry", "maths", "zoology", "botany"],
-} as const;
 
 export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,57 +50,13 @@ export default function AddStudentForm() {
       parentsName: "",
       dateOfTest: "",
       batch: "",
-      physics: 0,
-      chemistry: 0,
-      maths: 0,
-      zoology: 0,
-      botany: 0,
     },
   });
-
-  const stream = form.watch("stream");
-  
-  const activeSubjects = stream ? subjectFields[stream] : [];
-  
-  const marks = form.watch(activeSubjects as any);
-  
-  const total = marks.reduce((acc: number, mark: any) => acc + (Number(mark) || 0), 0);
-  
-  const result: "Pass" | "Fail" = marks.every((mark: any) => (Number(mark) || 0) >= PASS_MARK) ? "Pass" : "Fail";
-  
-  const maxMarks = activeSubjects.length * 100;
-
-  useEffect(() => {
-    form.register("maths");
-    form.register("zoology");
-    form.register("botany");
-  },[form.register])
 
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
     
-    const subjects = {
-      physics: values.physics,
-      chemistry: values.chemistry,
-      maths: activeSubjects.includes("maths") ? values.maths! : null,
-      zoology: activeSubjects.includes("zoology") ? values.zoology! : null,
-      botany: activeSubjects.includes("botany") ? values.botany! : null,
-    }
-
-    const fullData = { 
-        rollNumber: values.rollNumber,
-        studentName: values.studentName,
-        parentsName: values.parentsName,
-        dateOfTest: values.dateOfTest,
-        class: values.class,
-        stream: values.stream,
-        batch: values.batch,
-        subjects, 
-        total, 
-        result 
-    };
-
-    const response = await addStudent(fullData as any);
+    const response = await addStudent(values);
 
     if (response.success) {
       toast({
@@ -182,7 +122,7 @@ export default function AddStudentForm() {
             name="dateOfTest"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Test</FormLabel>
+                <FormLabel>Date of Registration</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="glowing-shadow-sm" />
                 </FormControl>
@@ -250,36 +190,7 @@ export default function AddStudentForm() {
                 )}
             />
         </div>
-
-        {stream && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {activeSubjects.map((subject) => (
-                <FormField
-                key={subject}
-                control={form.control}
-                name={subject as keyof FormValues}
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel className="capitalize">{subject}</FormLabel>
-                    <FormControl>
-                        <Input type="number" min="0" max="100" {...field} className="glowing-shadow-sm" />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            ))}
-            </div>
-        )}
-
-        {stream && (
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-lg bg-card-foreground/5 holographic-card">
-                <div className="text-lg font-medium">Total Marks: <span className="font-bold text-primary text-glow">{total} / {maxMarks}</span></div>
-                <div className="text-lg font-medium">Result: <span className={cn("font-bold text-glow", result === "Pass" ? "text-primary" : "text-destructive")}>{result}</span></div>
-            </div>
-        )}
-
-        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting || !stream}>
+        <Button type="submit" className="w-full glowing-shadow" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Add Student
         </Button>

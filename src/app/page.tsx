@@ -42,7 +42,7 @@ export default function Home() {
       } catch (err: any) {
         console.error("Firestore connection test failed:", err);
         setConnectionStatus("Failed to connect to the database.");
-        setError(`Connection Error: ${err.message}. Please ensure you have enabled Firestore in your Firebase project and check the browser console for more details.`);
+        setError(`Connection Error: Please ensure you have enabled Firestore in your Firebase project and check the browser console for more details.`);
       }
     };
     testConnection();

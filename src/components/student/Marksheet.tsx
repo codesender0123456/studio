@@ -18,20 +18,11 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Student } from "@/lib/student-types";
 import { Icons } from "@/components/common/Icons";
-import { cn } from "@/lib/utils";
 
 type MarksheetProps = {
   student: Student;
   onReset: () => void;
 };
-
-const subjectDisplayNameMap = {
-    physics: "Physics",
-    chemistry: "Chemistry",
-    maths: "Mathematics",
-    zoology: "Zoology",
-    botany: "Botany",
-}
 
 export default function Marksheet({ student, onReset }: MarksheetProps) {
   const marksheetRef = useRef<HTMLDivElement>(null);
@@ -54,14 +45,9 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
     });
 
     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`marksheet-${student.rollNumber}.pdf`);
+    pdf.save(`student-details-${student.rollNumber}.pdf`);
     setIsDownloading(false);
   };
-
-  const subjectsToDisplay = Object.entries(student.subjects)
-    .filter(([_, value]) => value !== null);
-  
-  const maxMarks = subjectsToDisplay.length * 100;
   
   const formattedDate = student.dateOfTest.split('-').reverse().join('-');
 
@@ -73,6 +59,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
                 <Icons.logo className="h-10 w-10 text-primary" />
                 <div>
                     <h2 className="text-2xl font-bold font-headline text-glow">Phoenix Science Academy</h2>
+                    <p className="text-sm text-center text-muted-foreground">Student Details</p>
                 </div>
             </div>
         </CardHeader>
@@ -82,50 +69,18 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
             <div><span className="font-semibold text-muted-foreground">Student:</span> {student.studentName}</div>
             <div><span className="font-semibold text-muted-foreground">Roll No:</span> {student.rollNumber}</div>
             <div><span className="font-semibold text-muted-foreground">Parent:</span> {student.parentsName}</div>
-            <div><span className="font-semibold text-muted-foreground">Date of Test:</span> {formattedDate}</div>
+            <div><span className="font-semibold text-muted-foreground">Date of Registration:</span> {formattedDate}</div>
             <div><span className="font-semibold text-muted-foreground">Stream:</span> <Badge variant="outline" className="text-xs">{student.stream}</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Class:</span> <Badge variant="outline" className="text-xs">{student.class}th</Badge></div>
             <div><span className="font-semibold text-muted-foreground">Batch:</span> <Badge variant="outline" className="text-xs">{student.batch}</Badge></div>
           </div>
           
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Subject</TableHead>
-                <TableHead className="text-right">Marks Obtained</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subjectsToDisplay.map(([subjectKey, mark]) => (
-                <TableRow key={subjectKey}>
-                  <TableCell>{subjectDisplayNameMap[subjectKey as keyof typeof subjectDisplayNameMap]}</TableCell>
-                  <TableCell className="text-right">{mark}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
           <Separator className="my-4 bg-primary/20" />
 
-          <div className="flex justify-between items-center font-bold text-lg">
-            <span>Total Marks:</span>
-            <span className="text-primary text-glow">{student.total} / {maxMarks}</span>
+          <div className="text-center text-sm text-muted-foreground">
+            To view results for a specific test, please select the test from the student's profile.
           </div>
-
-          <div className="flex justify-between items-center font-bold text-lg mt-2">
-            <span>Result:</span>
-            <Badge
-                className={cn(
-                    "text-lg",
-                    student.result === "Pass"
-                        ? "bg-primary/20 text-primary border-primary/50"
-                        : "bg-destructive/20 text-destructive border-destructive/50"
-                )}
-                variant="outline"
-                >
-                {student.result}
-            </Badge>
-          </div>
+        
         </CardContent>
       </div>
       <CardFooter className="flex justify-between p-6">
@@ -139,7 +94,7 @@ export default function Marksheet({ student, onReset }: MarksheetProps) {
           ) : (
             <Download className="mr-2 h-4 w-4" />
           )}
-          Download PDF
+          Download Details
         </Button>
       </CardFooter>
     </Card>
