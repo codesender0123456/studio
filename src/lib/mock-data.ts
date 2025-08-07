@@ -4,7 +4,7 @@ export type Student = {
   parentsName: string;
   dateOfTest: string; // YYYY-MM-DD
   class: 11 | 12;
-  stream: "JEE" | "NEET" | "MHT-CET";
+  stream: "JEE" | "NEET" | "MHT-CET" | "Regular Batch";
   batch: string; // e.g., "2022-2024"
   subjects: {
     physics: number;
@@ -76,6 +76,18 @@ export const students: Student[] = [
     batch: "2022-2024",
     subjects: { physics: 98, chemistry: 99, maths: 95, zoology: null, botany: null },
     total: 292,
+    result: "Pass",
+  },
+  {
+    rollNumber: "2024006",
+    studentName: "Ava Garcia",
+    parentsName: "Robert Garcia",
+    dateOfTest: "2024-03-16",
+    class: 11,
+    stream: "Regular Batch",
+    batch: "2023-2025",
+    subjects: { physics: 80, chemistry: 82, maths: 77, zoology: 75, botany: 79 },
+    total: 393,
     result: "Pass",
   },
   {

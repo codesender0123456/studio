@@ -40,8 +40,11 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
       classFilter === "all" ? true : student.class === Number(classFilter)
     )
     .filter((student) => {
-      if (streamFilter === 'all' || streamFilter === 'Regular Batch') {
+      if (streamFilter === 'all') {
         return true;
+      }
+      if (streamFilter === 'Regular Batch') {
+        return ["JEE", "NEET", "MHT-CET", "Regular Batch"].includes(student.stream);
       }
       return student.stream === streamFilter;
     });

@@ -8,7 +8,7 @@ const studentSchema = z.object({
   parentsName: z.string().min(1, "Parent's Name is required"),
   dateOfTest: z.string().min(1, "Date of Test is required"),
   class: z.coerce.number().min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET"]),
+  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"]),
   batch: z.string().min(1, "Batch is required"),
   subjects: z.object({
     physics: z.coerce.number().min(0).max(100),

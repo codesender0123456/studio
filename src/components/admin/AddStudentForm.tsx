@@ -34,7 +34,7 @@ const formSchema = z.object({
   parentsName: z.string().min(1, "Parent's Name is required"),
   dateOfTest: z.string().min(1, "Date of Test is required"),
   class: z.coerce.number({required_error: "Please select a class."}).min(11).max(12),
-  stream: z.enum(["JEE", "NEET", "MHT-CET"], { required_error: "Please select a stream."}),
+  stream: z.enum(["JEE", "NEET", "MHT-CET", "Regular Batch"], { required_error: "Please select a stream."}),
   batch: z.string().min(1, "Batch is required"),
   physics: z.coerce.number().min(0).max(100),
   chemistry: z.coerce.number().min(0).max(100),
@@ -51,6 +51,7 @@ const subjectFields = {
     JEE: ["physics", "chemistry", "maths"],
     NEET: ["physics", "chemistry", "zoology", "botany"],
     "MHT-CET": ["physics", "chemistry", "maths", "zoology", "botany"],
+    "Regular Batch": ["physics", "chemistry", "maths", "zoology", "botany"],
 } as const;
 
 export default function AddStudentForm() {
@@ -228,6 +229,7 @@ export default function AddStudentForm() {
                         <SelectItem value="JEE">JEE - Regular Batch</SelectItem>
                         <SelectItem value="NEET">NEET - Regular Batch</SelectItem>
                         <SelectItem value="MHT-CET">MHT-CET - Regular Batch</SelectItem>
+                        <SelectItem value="Regular Batch">Regular Batch</SelectItem>
                     </SelectContent>
                     </Select>
                     <FormMessage />
