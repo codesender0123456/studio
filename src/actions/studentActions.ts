@@ -36,7 +36,7 @@ export async function addStudent(formData: z.infer<typeof studentSchema>) {
 
   try {
     // Use rollNumber as the document ID
-    const studentRef = doc(db, "students", validatedData.data.rollNumber);
+    const studentRef = doc(db, "students", validatedData.data.rollNumber.toLowerCase());
     await setDoc(studentRef, validatedData.data);
     
     return {
