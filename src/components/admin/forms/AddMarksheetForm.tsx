@@ -111,7 +111,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                     <FormControl>
                         <Input 
                             type="number" 
-                            placeholder="Max Marks"
+                            placeholder="Total Marks"
                              {...field}
                             onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
                             value={field.value ?? ""}
