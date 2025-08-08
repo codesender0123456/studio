@@ -120,6 +120,8 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                                 if (value.length > 6) value = value.slice(0, 6);
                                 field.onChange(value === '' ? undefined : Number(value));
                             }}
+                            onFocus={(e) => e.target.type = 'number'}
+                            onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
                          />
@@ -143,6 +145,8 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                                 if (value.length > 6) value = value.slice(0, 6);
                                 field.onChange(value === '' ? undefined : Number(value));
                             }}
+                            onFocus={(e) => e.target.type = 'number'}
+                            onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
                         />
