@@ -21,8 +21,6 @@ import { Skeleton } from "../ui/skeleton";
 
 type MarksheetProps = {
   student: Student;
-  onReset: () => void;
-  isSigningOut: boolean;
 };
 
 const MarksheetDetails = ({ student }: { student: Student }) => {
@@ -81,7 +79,7 @@ const MarksheetResultItem = ({ marksheet }: { marksheet: MarksheetData }) => {
     )
 }
 
-export default function Marksheet({ student, onReset, isSigningOut }: MarksheetProps) {
+export default function Marksheet({ student }: MarksheetProps) {
   const [marks, setMarks] = useState<MarksheetData[]>([]);
   const [loadingMarks, setLoadingMarks] = useState(true);
   const [error, setError] = useState<string | null>(null);

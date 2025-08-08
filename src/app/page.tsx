@@ -98,7 +98,7 @@ export default function Home() {
             <p>Loading...</p>
           </div>
         ) : user && studentData ? (
-          <Marksheet student={studentData} onReset={handleSignOut} isSigningOut={isSigningOut}/>
+          <Marksheet student={studentData} />
         ) : (
           <StudentLoginForm error={error || authError?.message} />
         )}
