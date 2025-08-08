@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -22,6 +23,9 @@ import {
 } from "@/components/ui/select";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import EditStudentDialog from "./EditStudentDialog";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "../ui/button";
+
 
 type StudentsTableProps = {
   students: Student[];
@@ -33,9 +37,30 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
   const [streamFilter, setStreamFilter] = useState("all");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | "none">(
+    "none"
+  );
 
 
-  const filteredStudents = initialStudents
+  const sortedStudents = useMemo(() => {
+    let sortableStudents = [...initialStudents];
+    if (sortDirection !== 'none') {
+      sortableStudents.sort((a, b) => {
+        const rollA = parseInt(a.rollNumber.replace(/\D/g, ''), 10);
+        const rollB = parseInt(b.rollNumber.replace(/\D/g, ''), 10);
+        if (rollA < rollB) {
+          return sortDirection === 'asc' ? -1 : 1;
+        }
+        if (rollA > rollB) {
+          return sortDirection === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableStudents;
+  }, [initialStudents, sortDirection]);
+
+  const filteredStudents = sortedStudents
     .filter(
       (student) =>
         student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,6 +81,15 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     setSelectedStudent(student);
     setIsDialogOpen(true);
   }
+
+  const handleSort = () => {
+    if (sortDirection === 'none' || sortDirection === 'desc') {
+      setSortDirection('asc');
+    } else {
+      setSortDirection('desc');
+    }
+  }
+
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -96,7 +130,12 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
           <Table>
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
-                <TableHead className="w-[100px]">Roll No.</TableHead>
+                <TableHead className="w-[120px]">
+                  <Button variant="ghost" onClick={handleSort}>
+                    Roll No.
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="w-[80px]">Class</TableHead>
