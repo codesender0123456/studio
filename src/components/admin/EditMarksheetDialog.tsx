@@ -43,12 +43,7 @@ type EditMarksheetDialogProps = {
 export default function EditMarksheetDialog({ student, marksheet, onClose }: EditMarksheetDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [today, setToday] = useState('');
-
-  useEffect(() => {
-    setToday(new Date().toISOString().split('T')[0]);
-  }, []);
-
+  
   const isJeeStudent = student.stream === "JEE";
   const isNeetStudent = student.stream === "NEET";
   const isRegularOrCet = student.stream === "Regular Batch" || student.stream === "MHT-CET";
@@ -115,7 +110,6 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                 name={`${name}.marks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
-                     <FormLabel className="text-xs text-muted-foreground">Marks Obtained</FormLabel>
                     <FormControl>
                         <Input 
                             type="number"
@@ -135,7 +129,6 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                 name={`${name}.maxMarks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
-                    <FormLabel className="text-xs text-muted-foreground">Total Marks</FormLabel>
                     <FormControl>
                         <Input 
                             type="number" 
@@ -192,7 +185,6 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                                                 onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
                                                 placeholder="DD-MM-YYYY"
                                                 {...field}
-                                                max={today}
                                                 className="glowing-shadow-sm"
                                             />
                                         </FormControl>

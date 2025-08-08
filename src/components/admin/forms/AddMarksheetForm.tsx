@@ -32,12 +32,7 @@ type AddMarksheetFormProps = {
 export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [today, setToday] = useState('');
-
-  useEffect(() => {
-    setToday(new Date().toISOString().split('T')[0]);
-  }, []);
-
+  
   const isJeeStudent = student.stream === "JEE";
   const isNeetStudent = student.stream === "NEET";
   const isRegularOrCet = student.stream === "Regular Batch" || student.stream === "MHT-CET";
@@ -114,7 +109,6 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 name={`${name}.marks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
-                     <FormLabel className="text-xs text-muted-foreground">Marks Obtained</FormLabel>
                     <FormControl>
                         <Input 
                             type="number"
@@ -134,7 +128,6 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 name={`${name}.maxMarks`}
                 render={({ field }) => (
                     <FormItem className="w-full">
-                    <FormLabel className="text-xs text-muted-foreground">Total Marks</FormLabel>
                     <FormControl>
                         <Input 
                             type="number" 
@@ -186,7 +179,6 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                                     onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
                                     placeholder="DD-MM-YYYY"
                                     {...field}
-                                    max={today}
                                     className="glowing-shadow-sm"
                                 />
                             </FormControl>
