@@ -176,8 +176,8 @@ export default function AddStudentForm() {
               )}
             />
              {existingStudent && (
-              <Alert variant="destructive" className="md:col-span-2 bg-destructive/20">
-                <AlertTriangle className="h-4 w-4" />
+              <Alert variant="destructive" className="md:col-span-2 bg-destructive/40 text-destructive-foreground">
+                <AlertTriangle className="h-4 w-4 text-destructive-foreground" />
                 <AlertTitle>Student Already Exists</AlertTitle>
                 <AlertDescription>
                   A student with this email address already exists in the database. Please use a different email or edit the existing student record.
