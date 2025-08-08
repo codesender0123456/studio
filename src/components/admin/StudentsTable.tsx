@@ -31,34 +31,45 @@ type StudentsTableProps = {
   students: Student[];
 };
 
+type SortConfig = {
+    key: "rollNumber" | "studentName";
+    direction: "asc" | "desc";
+} | null;
+
 export default function StudentsTable({ students: initialStudents }: StudentsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("all");
   const [streamFilter, setStreamFilter] = useState("all");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc" | "none">(
-    "none"
-  );
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
 
   const sortedStudents = useMemo(() => {
     let sortableStudents = [...initialStudents];
-    if (sortDirection !== 'none') {
+    if (sortConfig !== null) {
       sortableStudents.sort((a, b) => {
-        const rollA = parseInt(a.rollNumber.replace(/\D/g, ''), 10);
-        const rollB = parseInt(b.rollNumber.replace(/\D/g, ''), 10);
-        if (rollA < rollB) {
-          return sortDirection === 'asc' ? -1 : 1;
+        if (sortConfig.key === 'rollNumber') {
+          const rollA = parseInt(a.rollNumber.replace(/\D/g, ''), 10);
+          const rollB = parseInt(b.rollNumber.replace(/\D/g, ''), 10);
+          if (rollA < rollB) return sortConfig.direction === 'asc' ? -1 : 1;
+          if (rollA > rollB) return sortConfig.direction === 'asc' ? 1 : -1;
+          return 0;
         }
-        if (rollA > rollB) {
-          return sortDirection === 'asc' ? 1 : -1;
+        if (sortConfig.key === 'studentName') {
+           if (a.studentName.toLowerCase() < b.studentName.toLowerCase()) {
+             return sortConfig.direction === 'asc' ? -1 : 1;
+           }
+           if (a.studentName.toLowerCase() > b.studentName.toLowerCase()) {
+             return sortConfig.direction === 'asc' ? 1 : -1;
+           }
+           return 0;
         }
         return 0;
       });
     }
     return sortableStudents;
-  }, [initialStudents, sortDirection]);
+  }, [initialStudents, sortConfig]);
 
   const filteredStudents = sortedStudents
     .filter(
@@ -82,12 +93,15 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     setIsDialogOpen(true);
   }
 
-  const handleSort = () => {
-    if (sortDirection === 'none' || sortDirection === 'desc') {
-      setSortDirection('asc');
-    } else {
-      setSortDirection('desc');
+  const handleSort = (key: "rollNumber" | "studentName") => {
+    let direction: "asc" | "desc" = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig && sortConfig.key === key && sortConfig.direction === 'desc') {
+        setSortConfig(null);
+        return;
     }
+    setSortConfig({ key, direction });
   }
 
 
@@ -131,12 +145,17 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead className="w-[120px]">
-                  <Button variant="ghost" onClick={handleSort}>
+                  <Button variant="ghost" onClick={() => handleSort('rollNumber')}>
                     Roll No.
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                   </Button>
                 </TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>
+                   <Button variant="ghost" onClick={() => handleSort('studentName')}>
+                        Name
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="w-[80px]">Class</TableHead>
                 <TableHead>Stream</TableHead>
