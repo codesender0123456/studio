@@ -115,9 +115,10 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                             type="number"
                             placeholder="Marks Obtained"
                             {...field}
-                            onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
+                            onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
+                            maxLength={6}
                          />
                     </FormControl>
                     <FormMessage />
@@ -134,9 +135,10 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                             type="number" 
                             placeholder="Total Marks"
                              {...field}
-                            onChange={e => field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)}
+                            onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
+                            maxLength={6}
                         />
                     </FormControl>
                     <FormMessage />
