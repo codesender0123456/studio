@@ -13,6 +13,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AddStudentForm from "./AddStudentForm";
 import StudentsTable from "./StudentsTable";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminDashboard() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -62,10 +73,29 @@ export default function AdminDashboard() {
               <TabsTrigger value="view-students">View All Students</TabsTrigger>
               <TabsTrigger value="add-student">Add New Student</TabsTrigger>
             </TabsList>
-            <Button variant="ghost" className="glowing-shadow-sm" onClick={handleSignOut} disabled={isSigningOut}>
-                {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
-                Sign Out
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" className="glowing-shadow-sm" disabled={isSigningOut}>
+                    {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogOut className="mr-2 h-4 w-4" />}
+                    Sign Out
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to sign out?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You will be logged out of the admin panel.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleSignOut} disabled={isSigningOut}>
+                    {isSigningOut ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Sign Out
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <TabsContent value="view-students">
             {loadingStudents ? (
