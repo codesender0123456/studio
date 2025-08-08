@@ -1,7 +1,9 @@
 
+"use server";
+
 import admin from "firebase-admin";
 // Adjust the path to your service account key file
-import serviceAccount from "../../serviceAccountKey.json";
+import serviceAccount from "../serviceAccountKey.json";
 
 const appName = "firebase-admin-app";
 
