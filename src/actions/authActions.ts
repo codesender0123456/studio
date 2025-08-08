@@ -20,14 +20,6 @@ export async function deleteUser(uid: string) {
         return { success: false, message: "User account not found in Firebase Authentication. It may have been deleted already." };
     }
     
-    // Check for the specific PEM key parsing error
-    if (error.message && error.message.includes('PEM')) {
-        return {
-            success: false,
-            message: "Failed to parse service account private key. Please ensure 'serviceAccountKey.json' is valid."
-        }
-    }
-
     return {
       success: false,
       message: error.message || "An unknown error occurred while deleting the user account.",
