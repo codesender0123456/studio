@@ -110,13 +110,16 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                     <FormItem className="w-full">
                     <FormControl>
                         <Input 
-                            type="number"
                             placeholder="Marks Obtained"
                             {...field}
-                            onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                            type="number"
+                             onChange={e => {
+                                let value = e.target.value;
+                                if (value.length > 6) value = value.slice(0, 6);
+                                field.onChange(value === '' ? undefined : Number(value));
+                            }}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
-                            maxLength={6}
                          />
                     </FormControl>
                     <FormMessage />
@@ -130,13 +133,16 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                     <FormItem className="w-full">
                     <FormControl>
                         <Input 
-                            type="number" 
                             placeholder="Total Marks"
                              {...field}
-                            onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                            type="number"
+                             onChange={e => {
+                                let value = e.target.value;
+                                if (value.length > 6) value = value.slice(0, 6);
+                                field.onChange(value === '' ? undefined : Number(value));
+                            }}
                             value={field.value ?? ""}
                             className="glowing-shadow-sm"
-                            maxLength={6}
                         />
                     </FormControl>
                     <FormMessage />
