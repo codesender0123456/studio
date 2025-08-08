@@ -289,4 +289,3 @@ export async function getLoginAttempts() {
         return { success: false, data: null, message: "An error occurred while fetching login attempts." };
     }
 }
-

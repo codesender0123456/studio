@@ -51,8 +51,8 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
   const form = useForm<FormValues>({
     resolver: zodResolver(marksheetSchema),
     defaultValues: {
-        testName: marksheet.testName,
-        dateOfTest: marksheet.dateOfTest,
+        testName: marksheet.testName || "",
+        dateOfTest: marksheet.dateOfTest || "",
         physics: marksheet.physics || { topic: "", marks: undefined, maxMarks: undefined },
         chemistry: marksheet.chemistry || { topic: "", marks: undefined, maxMarks: undefined },
         maths: marksheet.maths || { topic: "", marks: undefined, maxMarks: undefined },
@@ -185,7 +185,7 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                                                 onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
                                                 placeholder="DD-MM-YYYY"
                                                 {...field}
-                                                className="glowing-shadow-sm"
+                                                className="glowing-shadow-sm dark-date-picker"
                                             />
                                         </FormControl>
                                         <FormMessage />
