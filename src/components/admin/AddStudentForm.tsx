@@ -176,7 +176,7 @@ export default function AddStudentForm() {
               )}
             />
              {existingStudent && (
-              <Alert variant="destructive" className="md:col-span-2">
+              <Alert variant="destructive" className="md:col-span-2 bg-destructive/20">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Student Already Exists</AlertTitle>
                 <AlertDescription>
