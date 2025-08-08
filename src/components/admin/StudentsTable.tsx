@@ -31,8 +31,10 @@ type StudentsTableProps = {
   students: Student[];
 };
 
+type SortKey = "rollNumber" | "studentName" | "email" | "batch";
+
 type SortConfig = {
-    key: "rollNumber" | "studentName";
+    key: SortKey;
     direction: "asc" | "desc";
 } | null;
 
@@ -49,22 +51,28 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     let sortableStudents = [...initialStudents];
     if (sortConfig !== null) {
       sortableStudents.sort((a, b) => {
-        if (sortConfig.key === 'rollNumber') {
+        const key = sortConfig.key;
+        const direction = sortConfig.direction === 'asc' ? 1 : -1;
+
+        const valA = a[key];
+        const valB = b[key];
+
+        if (key === 'rollNumber') {
           const rollA = parseInt(a.rollNumber.replace(/\D/g, ''), 10);
           const rollB = parseInt(b.rollNumber.replace(/\D/g, ''), 10);
-          if (rollA < rollB) return sortConfig.direction === 'asc' ? -1 : 1;
-          if (rollA > rollB) return sortConfig.direction === 'asc' ? 1 : -1;
-          return 0;
+          return (rollA - rollB) * direction;
         }
-        if (sortConfig.key === 'studentName') {
-           if (a.studentName.toLowerCase() < b.studentName.toLowerCase()) {
-             return sortConfig.direction === 'asc' ? -1 : 1;
-           }
-           if (a.studentName.toLowerCase() > b.studentName.toLowerCase()) {
-             return sortConfig.direction === 'asc' ? 1 : -1;
-           }
-           return 0;
+
+        if (key === 'batch') {
+            const yearA = parseInt(a.batch.split('-')[0], 10);
+            const yearB = parseInt(b.batch.split('-')[0], 10);
+            return (yearA - yearB) * direction;
         }
+        
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            return valA.toLowerCase().localeCompare(valB.toLowerCase()) * direction;
+        }
+        
         return 0;
       });
     }
@@ -93,7 +101,7 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
     setIsDialogOpen(true);
   }
 
-  const handleSort = (key: "rollNumber" | "studentName") => {
+  const handleSort = (key: SortKey) => {
     let direction: "asc" | "desc" = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
@@ -156,10 +164,20 @@ export default function StudentsTable({ students: initialStudents }: StudentsTab
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                 </TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('email')}>
+                    Email
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </TableHead>
                 <TableHead className="w-[80px]">Class</TableHead>
                 <TableHead>Stream</TableHead>
-                <TableHead className="w-[120px]">Batch</TableHead>
+                <TableHead className="w-[120px]">
+                    <Button variant="ghost" onClick={() => handleSort('batch')}>
+                        Batch
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
