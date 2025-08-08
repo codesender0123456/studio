@@ -47,7 +47,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
     resolver: zodResolver(marksheetSchema),
     defaultValues: {
         testName: "",
-        dateOfTest: new Date().toISOString().split('T')[0],
+        dateOfTest: "",
         physics: { topic: "", marks: undefined, maxMarks: undefined },
         chemistry: { topic: "", marks: undefined, maxMarks: undefined },
         maths: { topic: "", marks: undefined, maxMarks: undefined },
@@ -68,7 +68,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
         });
         form.reset({
             testName: "",
-            dateOfTest: new Date().toISOString().split('T')[0],
+            dateOfTest: "",
             physics: { topic: "", marks: undefined, maxMarks: undefined },
             chemistry: { topic: "", marks: undefined, maxMarks: undefined },
             maths: { topic: "", marks: undefined, maxMarks: undefined },
@@ -178,11 +178,19 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                     name="dateOfTest"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Date of Test</FormLabel>
-                        <FormControl>
-                            <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
-                        </FormControl>
-                        <FormMessage />
+                            <FormLabel>Date of Test</FormLabel>
+                            <FormControl>
+                                 <Input
+                                    type={field.value ? "date" : "text"}
+                                    onFocus={(e) => e.target.type = 'date'}
+                                    onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
+                                    placeholder="DD-MM-YYYY"
+                                    {...field}
+                                    max={today}
+                                    className="glowing-shadow-sm"
+                                />
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                     />

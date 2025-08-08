@@ -138,7 +138,15 @@ export default function EditStudentForm({ student, onClose }: EditStudentFormPro
                     <FormItem>
                         <FormLabel>D.O.B.</FormLabel>
                         <FormControl>
-                        <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
+                            <Input
+                                type={field.value ? "date" : "text"}
+                                onFocus={(e) => e.target.type = 'date'}
+                                onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
+                                placeholder="DD-MM-YYYY"
+                                {...field}
+                                max={today}
+                                className="glowing-shadow-sm"
+                            />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

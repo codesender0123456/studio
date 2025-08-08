@@ -51,7 +51,7 @@ export default function AddStudentForm() {
       rollNumber: "",
       studentName: "",
       parentsName: "",
-      dateOfBirth: new Date().toISOString().split('T')[0],
+      dateOfBirth: "",
       email: "",
       batch: "",
     },
@@ -114,7 +114,7 @@ export default function AddStudentForm() {
                 rollNumber: "",
                 studentName: "",
                 parentsName: "",
-                dateOfBirth: new Date().toISOString().split('T')[0],
+                dateOfBirth: "",
                 email: "",
                 batch: "",
                 class: undefined,
@@ -226,18 +226,26 @@ export default function AddStudentForm() {
             )}
           />
            <FormField
-            control={form.control}
-            name="dateOfBirth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>D.O.B.</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              control={form.control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>D.O.B.</FormLabel>
+                  <FormControl>
+                    <Input
+                      type={field.value ? "date" : "text"}
+                      onFocus={(e) => e.target.type = 'date'}
+                      onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
+                      placeholder="DD-MM-YYYY"
+                      {...field}
+                      max={today}
+                      className="glowing-shadow-sm"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField

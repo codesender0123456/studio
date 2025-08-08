@@ -184,11 +184,19 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
                                 name="dateOfTest"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Date of Test</FormLabel>
-                                    <FormControl>
-                                        <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
-                                    </FormControl>
-                                    <FormMessage />
+                                        <FormLabel>Date of Test</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type={field.value ? "date" : "text"}
+                                                onFocus={(e) => e.target.type = 'date'}
+                                                onBlur={(e) => { if (!e.target.value) e.target.type = 'text';}}
+                                                placeholder="DD-MM-YYYY"
+                                                {...field}
+                                                max={today}
+                                                className="glowing-shadow-sm"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                                 />
