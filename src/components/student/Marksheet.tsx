@@ -26,7 +26,7 @@ type MarksheetProps = {
 };
 
 const MarksheetDetails = ({ student }: { student: Student }) => {
-    const formattedDate = student.dateOfBirth.split('-').reverse().join('-');
+    const formattedDate = student.dateOfBirth ? student.dateOfBirth.split('-').reverse().join('-') : 'N/A';
     return (
         <>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
