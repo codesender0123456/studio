@@ -147,6 +147,17 @@ export default function AddStudentForm() {
     setIsSubmitting(false);
   }
 
+  const handleBatchInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: any) => {
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    if (value.length > 8) {
+      value = value.slice(0, 8);
+    }
+    if (value.length > 4) {
+      value = `${value.slice(0, 4)}-${value.slice(4)}`;
+    }
+    field.onChange(value);
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -280,7 +291,13 @@ export default function AddStudentForm() {
                 <FormItem>
                     <FormLabel>Batch</FormLabel>
                     <FormControl>
-                    <Input placeholder="e.g., 2022-2024" {...field} className="glowing-shadow-sm" />
+                      <Input
+                        placeholder="YYYY-YYYY"
+                        {...field}
+                        onChange={(e) => handleBatchInputChange(e, field)}
+                        maxLength={9}
+                        className="glowing-shadow-sm"
+                      />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
