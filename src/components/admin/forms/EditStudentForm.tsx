@@ -4,7 +4,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,11 @@ type EditStudentFormProps = {
 export default function EditStudentForm({ student, onClose }: EditStudentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [today, setToday] = useState('');
+
+  useEffect(() => {
+    setToday(new Date().toISOString().split('T')[0]);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(updateStudentSchema),
@@ -122,7 +127,7 @@ export default function EditStudentForm({ student, onClose }: EditStudentFormPro
                     <FormItem>
                         <FormLabel>D.O.B.</FormLabel>
                         <FormControl>
-                        <Input type="date" {...field} className="glowing-shadow-sm" />
+                        <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

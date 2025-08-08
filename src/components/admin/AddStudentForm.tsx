@@ -39,6 +39,11 @@ export default function AddStudentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingStudent, setExistingStudent] = useState<Student | null>(null);
   const { toast } = useToast();
+  const [today, setToday] = useState('');
+
+  useEffect(() => {
+    setToday(new Date().toISOString().split('T')[0]);
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(addStudentFormClientSchema),
@@ -216,7 +221,7 @@ export default function AddStudentForm() {
               <FormItem>
                 <FormLabel>D.O.B.</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} className="glowing-shadow-sm" />
+                  <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
