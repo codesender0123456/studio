@@ -30,6 +30,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 type FormValues = z.infer<typeof marksheetSchema>;
 
@@ -162,52 +163,56 @@ export default function EditMarksheetDialog({ student, marksheet, onClose }: Edi
             </DialogHeader>
              <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                        control={form.control}
-                        name="testName"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Test Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g., Weekly Test 1" {...field} className="glowing-shadow-sm" />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <FormField
-                        control={form.control}
-                        name="dateOfTest"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Date of Test</FormLabel>
-                            <FormControl>
-                                <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-                    <div className="space-y-4">
-                        <p className="text-sm font-medium text-muted-foreground">Enter marks only for the subjects included in this test.</p>
-                        {form.formState.errors.testName && <FormMessage>{form.formState.errors.testName.message}</FormMessage>}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {renderSubjectInput("physics", "Physics")}
-                            {renderSubjectInput("chemistry", "Chemistry")}
+                    <ScrollArea className="h-[60vh] pr-4">
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField
+                                control={form.control}
+                                name="testName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Test Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., Weekly Test 1" {...field} className="glowing-shadow-sm" />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                                <FormField
+                                control={form.control}
+                                name="dateOfTest"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Date of Test</FormLabel>
+                                    <FormControl>
+                                        <Input type="date" {...field} max={today} className="glowing-shadow-sm" />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <p className="text-sm font-medium text-muted-foreground">Enter marks only for the subjects included in this test.</p>
+                                {form.formState.errors.testName && <FormMessage>{form.formState.errors.testName.message}</FormMessage>}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {renderSubjectInput("physics", "Physics")}
+                                    {renderSubjectInput("chemistry", "Chemistry")}
 
-                            {(isJeeStudent || isRegularOrCet) && (
-                                renderSubjectInput("maths", "Maths")
-                            )}
-                            {(isNeetStudent || isRegularOrCet) && (
-                                <>
-                                    {renderSubjectInput("botany", "Botany")}
-                                    {renderSubjectInput("zoology", "Zoology")}
-                                </>
-                            )}
+                                    {(isJeeStudent || isRegularOrCet) && (
+                                        renderSubjectInput("maths", "Maths")
+                                    )}
+                                    {(isNeetStudent || isRegularOrCet) && (
+                                        <>
+                                            {renderSubjectInput("botany", "Botany")}
+                                            {renderSubjectInput("zoology", "Zoology")}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </ScrollArea>
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="ghost">Cancel</Button>
