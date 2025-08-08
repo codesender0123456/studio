@@ -95,7 +95,7 @@ export default function AddMarksheetForm({ student }: AddMarksheetFormProps) {
                 name={`${name}.topic`}
                 render={({ field }) => (
                     <FormItem className="w-full">
-                    <FormLabel className="text-xs text-muted-foreground">Topic</FormLabel>
+                    
                     <FormControl>
                         <Input 
                             type="text"
