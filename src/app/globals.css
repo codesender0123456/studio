@@ -58,8 +58,7 @@
     border: 1px solid hsl(var(--accent) / 0.2);
   }
    /* Custom styles for date input */
-  .custom-date-input::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
+  .dark-date-picker {
+    color-scheme: dark;
   }
 }
