@@ -6,14 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
-import { getAuth } from "firebase/auth";
-
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
 } from "@/components/ui/form";
 import { updateStudent, deleteStudent } from "@/actions/studentActions";
+import { deleteUser } from "@/actions/authActions";
 import { useToast } from "@/hooks/use-toast";
 import {
     DialogContent,
@@ -57,51 +56,48 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
   async function onDelete() {
     setIsDeleting(true);
 
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-        toast({ title: "Error", description: "Admin not signed in.", variant: "destructive" });
-        setIsDeleting(false);
-        return;
-    }
-    
     try {
-        // Here you might want to delete subcollections first if you have any
-        // For now, we just delete the student doc
-        const response = await deleteStudent(student.rollNumber);
+        // Step 1: Delete the student's Firestore record
+        const dbResponse = await deleteStudent(student.rollNumber);
         
-        if (!response.success) {
-            toast({ title: "Error", description: response.message || "Could not delete student record.", variant: "destructive" });
+        if (!dbResponse.success) {
+            toast({ title: "Error", description: dbResponse.message || "Could not delete student record.", variant: "destructive" });
             setIsDeleting(false);
             return;
         }
 
-        toast({ title: "Success", description: "Student record deleted. Now attempting to delete login account..."});
+        toast({ title: "Success", description: "Student record deleted. Now deleting login account..."});
 
-        // You MUST handle re-authentication for this to work in production
-        // This is a sensitive operation and Firebase requires a recent sign-in
+        // Step 2: Delete the user's Firebase Authentication account
         if (student.uid) {
-             // This part is tricky and requires re-authentication, which is complex.
-             // For this app, we'll recommend manual deletion from the console.
+             const authResponse = await deleteUser(student.uid);
+             if (authResponse.success) {
+                toast({
+                    title: "Complete",
+                    description: `Successfully deleted student ${student.studentName} and their login account.`,
+                });
+             } else {
+                 toast({
+                    title: "Manual Action Required",
+                    description: authResponse.message || `Student record deleted, but failed to delete login account for ${student.email}. Please delete it manually.`,
+                    variant: "destructive",
+                    duration: 10000,
+                });
+             }
+        } else {
              toast({
-                title: "Manual Action Required",
-                description: `Student record for ${student.rollNumber} deleted. Please manually delete the user with email ${student.email} from the Firebase Authentication console.`,
-                duration: 10000,
+                title: "Warning",
+                description: `Student record deleted, but no associated User ID was found to delete the login account.`,
+                variant: "destructive",
             });
         }
       
       onClose();
     } catch (error: any) {
-        let errorMessage = "An unknown error occurred during deletion.";
-        // Check for specific auth errors if you implement user deletion
-        if (error.code === 'auth/requires-recent-login') {
-            errorMessage = "This is a sensitive operation. Please sign out and sign back in to the admin panel before trying again.";
-        }
-        toast({ title: "Error", description: errorMessage, variant: "destructive" });
+        toast({ title: "Error", description: "An unknown error occurred during deletion.", variant: "destructive" });
+    } finally {
+        setIsDeleting(false);
     }
-
-    setIsDeleting(false);
   }
 
   return (
@@ -131,7 +127,7 @@ export default function EditStudentDialog({ student, onClose }: EditStudentDialo
                         <AlertDialogHeader>
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action will permanently delete the student's database record, including all associated marksheet data. You will need to manually delete their login account from the Firebase Console. This cannot be undone.
+                            This action will permanently delete the student's database record and their associated login account. This cannot be undone.
                         </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
