@@ -10,8 +10,8 @@ export async function deleteUser(uid: string) {
   }
 
   try {
-    await initializeAdminApp();
-    await getAuth().deleteUser(uid);
+    const adminApp = initializeAdminApp();
+    await getAuth(adminApp).deleteUser(uid);
     return { success: true, message: "User account deleted successfully." };
   } catch (error: any) {
     console.error("Error deleting user:", error);
