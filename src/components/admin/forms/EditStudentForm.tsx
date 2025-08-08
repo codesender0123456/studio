@@ -193,9 +193,9 @@ export default function EditStudentForm({ student, onClose }: EditStudentFormPro
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="JEE">JEE - Regular Batch</SelectItem>
-                            <SelectItem value="NEET">NEET - Regular Batch</SelectItem>
-                            <SelectItem value="MHT-CET">MHT-CET - Regular Batch</SelectItem>
+                            <SelectItem value="JEE">JEE</SelectItem>
+                            <SelectItem value="NEET">NEET</SelectItem>
+                            <SelectItem value="MHT-CET">MHT-CET</SelectItem>
                             <SelectItem value="Regular Batch">Regular Batch</SelectItem>
                         </SelectContent>
                         </Select>
