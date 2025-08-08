@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Student } from "@/lib/student-types";
 import { marksheetSchema } from "@/lib/schemas";
 import { saveMarksheetData } from "@/actions/studentActions";
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type FormValues = z.infer<typeof marksheetSchema>;
 
