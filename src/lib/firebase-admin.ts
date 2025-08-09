@@ -5,17 +5,18 @@ import admin, { App } from "firebase-admin";
 
 const appName = "firebase-admin-app-" + Date.now();
 
+// These environment variables now directly match the keys in your serviceAccountKey.json file.
 const serviceAccountParams = {
-  type: process.env.FIREBASE_ADMIN_TYPE,
-  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-  privateKeyId: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
-  privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-  clientId: process.env.FIREBASE_ADMIN_CLIENT_ID,
-  authUri: process.env.FIREBASE_ADMIN_AUTH_URI,
-  tokenUri: process.env.FIREBASE_ADMIN_TOKEN_URI,
-  authProviderX509CertUrl: process.env.FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
-  clientC509CertUrl: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
+  type: process.env.type,
+  projectId: process.env.project_id,
+  privateKeyId: process.env.private_key_id,
+  privateKey: process.env.private_key?.replace(/\\n/g, '\n'),
+  clientEmail: process.env.client_email,
+  clientId: process.env.client_id,
+  authUri: process.env.auth_uri,
+  tokenUri: process.env.token_uri,
+  authProviderX509CertUrl: process.env.auth_provider_x509_cert_url,
+  clientC509CertUrl: process.env.client_x509_cert_url,
 };
 
 export async function initializeAdminApp(): Promise<App> {
