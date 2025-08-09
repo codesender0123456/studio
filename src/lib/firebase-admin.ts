@@ -1,36 +1,40 @@
 
 "use server";
 
-import admin from "firebase-admin";
-import serviceAccount from "./serviceAccountKey.json";
+import admin, { App } from "firebase-admin";
 
-const appName = "firebase-admin-app";
+const appName = "firebase-admin-app-" + Date.now();
 
-// The type assertion is necessary because the JSON import may not match the `ServiceAccount` type directly.
 const serviceAccountParams = {
-  type: serviceAccount.type,
-  projectId: serviceAccount.project_id,
-  privateKeyId: serviceAccount.private_key_id,
-  privateKey: serviceAccount.private_key,
-  clientEmail: serviceAccount.client_email,
-  clientId: serviceAccount.client_id,
-  authUri: serviceAccount.auth_uri,
-  tokenUri: serviceAccount.token_uri,
-  authProviderX509CertUrl: serviceAccount.auth_provider_x509_cert_url,
-  clientC509CertUrl: serviceAccount.client_x509_cert_url,
+  type: process.env.FIREBASE_ADMIN_TYPE,
+  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+  privateKeyId: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
+  privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+  clientId: process.env.FIREBASE_ADMIN_CLIENT_ID,
+  authUri: process.env.FIREBASE_ADMIN_AUTH_URI,
+  tokenUri: process.env.FIREBASE_ADMIN_TOKEN_URI,
+  authProviderX509CertUrl: process.env.FIREBASE_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
+  clientC509CertUrl: process.env.FIREBASE_ADMIN_CLIENT_X509_CERT_URL,
 };
 
-
-export const initializeAdminApp = async () => {
+export async function initializeAdminApp(): Promise<App> {
   const existingApp = admin.apps.find((app) => app?.name === appName);
   if (existingApp) {
     return existingApp;
   }
 
+  // Type assertion for the credential object
+  const credential = admin.credential.cert({
+    projectId: serviceAccountParams.projectId,
+    clientEmail: serviceAccountParams.clientEmail,
+    privateKey: serviceAccountParams.privateKey,
+  });
+
   return admin.initializeApp(
     {
-      credential: admin.credential.cert(serviceAccountParams),
+      credential,
     },
     appName
   );
-};
+}
