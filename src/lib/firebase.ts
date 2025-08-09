@@ -11,7 +11,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyA1_rlFc7ESybCMvGHlw-CI76emCtpP_RI",
   authDomain: "pheniox-academy-student-result.firebaseapp.com",
   projectId: "pheniox-academy-student-result",
-  storageBucket: "pheniox-academy-student-result.firebasestorage.app",
+  storageBucket: "pheniox-academy-student-result.appspot.com",
   messagingSenderId: "75218136369",
   appId: "1:75218136369:web:08520ddc161d00a9af9410",
   measurementId: "G-LT212Q697R"
