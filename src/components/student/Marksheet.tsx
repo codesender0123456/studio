@@ -1,8 +1,8 @@
 
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { collection, getDocs, query, orderBy, doc } from "firebase/firestore";
-import { LogOut, Loader2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 
 type MarksheetProps = {
@@ -83,32 +84,61 @@ export default function Marksheet({ student }: MarksheetProps) {
   const [marks, setMarks] = useState<MarksheetData[]>([]);
   const [loadingMarks, setLoadingMarks] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   
-  useEffect(() => {
-    const fetchMarks = async () => {
-        if(!student.rollNumber) return;
-        setLoadingMarks(true);
-        try {
-            const studentRef = doc(db, "students", student.rollNumber.toLowerCase());
-            const marksQuery = query(collection(studentRef, "marks"), orderBy("dateOfTest", "desc"));
-            const querySnapshot = await getDocs(marksQuery);
-            const marksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as MarksheetData);
-            setMarks(marksData);
-        } catch (err) {
-            console.error("Error fetching marks:", err);
-            setError("Could not load test results.");
-        } finally {
-            setLoadingMarks(false);
+  const fetchMarks = useCallback(async (isRefresh = false) => {
+    if(!student.rollNumber) return;
+    setLoadingMarks(true);
+    setError(null);
+
+    try {
+        const studentRef = doc(db, "students", student.rollNumber.toLowerCase());
+        const marksQuery = query(collection(studentRef, "marks"), orderBy("dateOfTest", "desc"));
+        const querySnapshot = await getDocs(marksQuery);
+        const marksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as MarksheetData);
+        setMarks(marksData);
+        if (isRefresh) {
+            toast({
+                title: "Success",
+                description: "Marksheet data has been updated.",
+            });
         }
+    } catch (err) {
+        console.error("Error fetching marks:", err);
+        setError("Could not load test results.");
+        if (isRefresh) {
+            toast({
+                title: "Error",
+                description: "Failed to refresh marksheet data.",
+                variant: "destructive"
+            });
+        }
+    } finally {
+        setLoadingMarks(false);
     }
+  }, [student.rollNumber, toast]);
+
+  useEffect(() => {
     fetchMarks();
-  }, [student.rollNumber])
+  }, [fetchMarks])
   
   return (
     <Card className="w-full max-w-md mx-auto holographic-card glowing-shadow">
       <div className="p-6 bg-transparent">
         <CardHeader className="p-0 mb-4">
-             <CardTitle className="text-2xl text-center text-glow font-headline">Student Marksheet</CardTitle>
+            <div className="flex justify-between items-center">
+                <CardTitle className="text-2xl text-center text-glow font-headline">Student Marksheet</CardTitle>
+                 <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => fetchMarks(true)} 
+                    disabled={loadingMarks}
+                    className="h-8 w-8 glowing-shadow-sm"
+                >
+                    <RefreshCw className={`h-4 w-4 ${loadingMarks ? 'animate-spin' : ''}`} />
+                    <span className="sr-only">Refresh</span>
+                </Button>
+            </div>
         </CardHeader>
         <CardContent className="p-0">
             <Accordion type="single" collapsible defaultValue="details">
@@ -159,3 +189,4 @@ export default function Marksheet({ student }: MarksheetProps) {
     </Card>
   );
 }
+
